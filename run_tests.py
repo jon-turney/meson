@@ -199,7 +199,7 @@ if __name__ == '__main__':
     #
     # While building for x86, `platform` should be unset.
     if 'APPVEYOR' in os.environ and os.environ['arch'] == 'x86':
-        os.environ.pop('platform')
+        os.environ.pop('platform', None)
     # Run tests
     print(mlog.bold('Running unittests.').get_text(mlog.colorize_console))
     print()
