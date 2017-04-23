@@ -17,6 +17,10 @@ environment:
       backend: ninja
 
     - arch: x86
+      compiler: cygwin
+      backend: ninja
+
+    - arch: x86
       compiler: msvc2010
       backend: ninja
 
