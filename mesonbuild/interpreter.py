@@ -561,6 +561,7 @@ class CustomTargetHolder(TargetHolder):
         self.held_object = object_to_hold
         self.interpreter = interp
         self.methods.update({'full_path': self.full_path_method,
+                             'private_dir_include': self.private_dir_include_method,
                              })
 
     def __repr__(self):
@@ -570,6 +571,10 @@ class CustomTargetHolder(TargetHolder):
 
     def full_path_method(self, args, kwargs):
         return self.interpreter.backend.get_target_filename_abs(self.held_object)
+
+    def private_dir_include_method(self, args, kwargs):
+        return IncludeDirsHolder(build.IncludeDirs('', [], False,
+                                                   [self.interpreter.backend.get_target_private_dir(self.held_object)]))
 
 class RunTargetHolder(InterpreterObject):
     def __init__(self, name, command, args, dependencies, subdir):

@@ -853,6 +853,8 @@ This object is returned by [`custom_target`](#custom_target) and contains a targ
 
 - `full_path()` returns a full path pointing to the result target file
 
+- `private_dir_include()` returns a opaque value that works like `include_directories` but points to the private directory of this target, usually only needed if an another target needs to access some generated internal headers of this target
+
 ### `dependency` object
 
 This object is returned by [`dependency()`](#dependency) and contains an external dependency with the following methods:
