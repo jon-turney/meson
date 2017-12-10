@@ -49,10 +49,6 @@ environment:
 platform:
   - x64
 
-branches:
-  only:
-    - master
-
 init:
   - ps: |
         If($Env:compiler -like 'msvc2010') {
