@@ -1,12 +1,5 @@
 name: $(BuildID)
 
-trigger:
-  branches:
-    include:
-    - 'master'
-    # Release branches
-    - '0.*'
-
 variables:
   CI: 1
 
