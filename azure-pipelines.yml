@@ -1,12 +1,5 @@
 name: $(BuildID)
 
-trigger:
-  branches:
-    include:
-    - 'master'
-    # Release branches
-    - '0.*'
-
 variables:
   MESON_FIXED_NINJA: 1
   CI: 1
