@@ -1,5 +1,9 @@
 project('pcap test', 'c')
 
+if host_machine.system() == 'cygwin'
+  error('MESON_SKIP_TEST pcap is not packaged for Cygwin.')
+endif
+
 pcap_dep = dependency('pcap', version : '>=1.0')
 
 pcap_ver = pcap_dep.version()

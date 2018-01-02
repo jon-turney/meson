@@ -1,5 +1,9 @@
 project('gtest', 'cpp')
 
+if host_machine.system() == 'cygwin'
+  error('MESON_SKIP_TEST gtest is not packaged for Cygwin.')
+endif
+
 gtest = dependency('gtest', main : true)
 gtest_nomain = dependency('gtest', main : false)
 
