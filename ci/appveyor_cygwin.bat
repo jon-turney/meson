@@ -2,9 +2,10 @@ goto %1
 
 :install
 docker pull --disable-content-trust jturney/mesonci-cygwin
-echo FROM jturney/mesonci-cygwin >Dockerfile
-echo ADD %APPVEYOR_BUILD_FOLDER% %APPVEYOR_BUILD_FOLDER% >>Dockerfile
-docker built -t withgit .
+echo # escape=` >Dockerfile
+echo FROM jturney/mesonci-cygwin >>Dockerfile
+echo ADD . %APPVEYOR_BUILD_FOLDER% >>Dockerfile
+docker build -t withgit .
 goto :eof
 
 :build_script
