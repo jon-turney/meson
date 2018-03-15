@@ -222,10 +222,24 @@ class Conf:
         self.print_aligned(tarr)
 
 
+def convert_builtin_options(args):
+    # for convenience and consistency with 'meson setup', convert any built-in
+    # option appearing in the form '--foo=bar' to the form '-Dfoo=bar'
+    converted = []
+    for a in args:
+        if a.startswith('--') and '=' in a:
+            k, v = a.split('=', 1)
+            if k[2:] in coredata.builtin_options:
+                a = '-D' + k[2:] + '=' + v
+        converted.append(a)
+    return converted
+
+
 def run(args):
     args = mesonlib.expand_arguments(args)
     if not args:
         args = [os.getcwd()]
+    args = convert_builtin_options(args)
     options = parser.parse_args(args)
     if len(options.directory) > 1:
         print('%s <build directory>' % args[0])
