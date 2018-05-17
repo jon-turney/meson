@@ -49,12 +49,6 @@ environment:
 platform:
   - x64
 
-branches:
-  only:
-    - master
-    # Release branches
-    - /^[0-9]+\.[0-9]+$/
-
 init:
   - ps: |
         If($Env:compiler -like 'msvc2010') {
