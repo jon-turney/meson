@@ -1394,8 +1394,8 @@ class AllPlatformTests(BasePlatformTests):
     def test_custom_target_changes_cause_rebuild(self):
         '''
         Test that in a custom target, changes to the input files, the
-        ExternalProgram, and any File objects on the command-line cause
-        a rebuild.
+        ExternalProgram, any File objects on the command-line, and any
+        depend_files cause a rebuild.
         '''
         testdir = os.path.join(self.common_test_dir, '64 custom header generator')
         self.init(testdir)
@@ -1403,7 +1403,7 @@ class AllPlatformTests(BasePlatformTests):
         # Immediately rebuilding should not do anything
         self.assertBuildIsNoop()
         # Changing mtime of these should rebuild everything
-        for f in ('input.def', 'makeheader.py', 'somefile.txt'):
+        for f in ('input.def', 'makeheader.py', 'somefile.txt', 'depend_file'):
             self.utime(os.path.join(testdir, f))
             self.assertRebuiltTarget('prog')
 
