@@ -31,6 +31,10 @@ matrix:
   - os: linux
     compiler: gcc
     env: RUN_TESTS_ARGS="--cross" MESON_ARGS="--unity=on"
+  # Test flat layout
+  - os: linux
+    compiler: gcc
+    env: MESON_ARGS="--layout=flat"
 
 before_install:
   - python ./skip_ci.py --base-branch-env=TRAVIS_BRANCH --is-pull-env=TRAVIS_PULL_REQUEST
