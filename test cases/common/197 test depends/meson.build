@@ -18,7 +18,7 @@ test('string dependencies', test_prog,
     # This is declared for convenience,
     # real use case might have some obscure method
     # to find these dependencies, e.g. automatic plugin loading.
-    'custom_dep.txt',
+    custom_dep.full_path(),
     exe_dep.full_path(),
   ],
   depends : [custom_dep, exe_dep],
