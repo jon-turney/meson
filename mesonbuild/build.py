@@ -593,9 +593,11 @@ class BuildTarget(Target):
         link_depends.
         """
         sources = listify(sources)
-        for s in sources:
-            if hasattr(s, 'held_object'):
-                s = s.held_object
+        for sh in sources:
+            if hasattr(sh, 'held_object'):
+                s = sh.held_object
+            else:
+                s = sh
 
             if isinstance(s, File):
                 self.link_depends.append(s)
@@ -604,7 +606,7 @@ class BuildTarget(Target):
                     File.from_source_file(environment.source_dir, self.subdir, s))
             elif hasattr(s, 'get_outputs'):
                 self.link_depends.extend(
-                    [File.from_built_file(s.subdir, p) for p in s.get_outputs()])
+                    [File.from_built_file(sh.interpreter.backend.get_target_dir(s), p) for p in s.get_outputs()])
             else:
                 raise InvalidArguments(
                     'Link_depends arguments must be strings, Files, '
