@@ -1535,9 +1535,11 @@ class SharedLibrary(BuildTarget):
                 self.soversion = self.ltversion.split('.')[0]
         # Visual Studio module-definitions file
         if 'vs_module_defs' in kwargs:
-            path = kwargs['vs_module_defs']
-            if hasattr(path, 'held_object'):
-                path = path.held_object
+            path_holder = kwargs['vs_module_defs']
+            if hasattr(path_holder, 'held_object'):
+                path = path_holder.held_object
+            else:
+                path = path_holder
             if isinstance(path, str):
                 if os.path.isabs(path):
                     self.vs_module_defs = File.from_absolute_file(path)
@@ -1550,7 +1552,7 @@ class SharedLibrary(BuildTarget):
                 self.link_depends.append(path)
             elif hasattr(path, 'get_filename'):
                 # When passing output of a Custom Target
-                path = File.from_built_file(path.subdir, path.get_filename())
+                path = File.from_built_file(path_holder.interpreter.backend.get_target_dir(path), path.get_filename())
                 self.vs_module_defs = path
                 self.link_depends.append(path)
             else:
