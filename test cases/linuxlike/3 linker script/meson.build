@@ -26,7 +26,7 @@ test('core', e)
 python = find_program('python3')
 m = custom_target(
   'bob-ct.map',
-  command : [python, '@INPUT0@', '@INPUT1@', 'bob-ct.map'],
+  command : [python, '@INPUT0@', '@INPUT1@', '@OUTPUT@'],
   input : ['copy.py', 'bob.map'],
   output : 'bob-ct.map',
   depend_files : 'bob.map',
