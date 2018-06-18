@@ -192,8 +192,10 @@ class Backend:
         return os.path.relpath(target_dir, othert_dir)
 
     def get_target_source_dir(self, target):
+        target_dir = None
+        if self.environment.coredata.get_builtin_option('layout') == 'mirror':
+            target_dir = target.get_subdir()
         # if target dir is empty, avoid extraneous trailing / from os.path.join()
-        target_dir = self.get_target_dir(target)
         if target_dir:
             return os.path.join(self.build_to_src, target_dir)
         return self.build_to_src
