@@ -31,19 +31,25 @@ out = custom_target('library-dependency-hack',
   depends : [some, noversion, onlyversion, onlysoversion],
   command : [cp, '@INPUT@', '@OUTPUT@'])
 
+if get_option('layout') == 'flat'
+  lib_path_arg = '-Lmeson-out'
+else
+  lib_path_arg = '-L.'
+endif
+
 # Manually test if the linker can find the above libraries
 # i.e., whether they were generated with the right naming scheme
 test('manually linked 1', executable('manuallink1', out,
-  link_args : ['-L.', '-lsome']))
+  link_args : [lib_path_arg, '-lsome']))
 
 test('manually linked 2', executable('manuallink2', out,
-  link_args : ['-L.', '-lnoversion']))
+  link_args : [lib_path_arg, '-lnoversion']))
 
 test('manually linked 3', executable('manuallink3', out,
-  link_args : ['-L.', '-lonlyversion']))
+  link_args : [lib_path_arg, '-lonlyversion']))
 
 test('manually linked 4', executable('manuallink4', out,
-  link_args : ['-L.', '-lonlysoversion']))
+  link_args : [lib_path_arg, '-lonlysoversion']))
 
 shared_library('customdir', 'lib.c',
   install : true,
