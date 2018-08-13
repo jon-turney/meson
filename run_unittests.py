@@ -39,7 +39,7 @@ from mesonbuild.interpreter import Interpreter, ObjectHolder
 from mesonbuild.mesonlib import (
     is_windows, is_osx, is_cygwin, is_dragonflybsd, is_openbsd,
     windows_proof_rmtree, python_command, version_compare,
-    grab_leading_numbers, BuildDirLock
+    BuildDirLock
 )
 from mesonbuild.environment import detect_ninja
 from mesonbuild.mesonlib import MesonException, EnvironmentException
@@ -2656,8 +2656,7 @@ class FailureTests(BasePlatformTests):
         if langs is None:
             langs = []
         with open(self.mbuild, 'w') as f:
-            core_version = '.'.join([str(component) for component in grab_leading_numbers(mesonbuild.coredata.version)])
-            meson_version = meson_version or core_version
+            meson_version = meson_version or mesonbuild.coredata.version
             f.write("project('output test', 'c', 'cpp', meson_version: '{}')\n".format(meson_version))
             for lang in langs:
                 f.write("add_languages('{}', required : false)\n".format(lang))
