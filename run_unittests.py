@@ -2749,7 +2749,7 @@ class FailureTests(BasePlatformTests):
         super().tearDown()
         windows_proof_rmtree(self.srcdir)
 
-    def assertMesonRaises(self, contents, match, extra_args=None, langs=None):
+    def assertMesonRaises(self, contents, match, extra_args=None, langs=None, meson_version=None):
         '''
         Assert that running meson configure on the specified @contents raises
         a error message matching regex @match.
@@ -2757,7 +2757,10 @@ class FailureTests(BasePlatformTests):
         if langs is None:
             langs = []
         with open(self.mbuild, 'w') as f:
-            f.write("project('failure test', 'c', 'cpp')\n")
+            f.write("project('failure test', 'c', 'cpp'")
+            if meson_version:
+                f.write(", meson_version: '{}'".format(meson_version))
+            f.write(")\n".format(meson_version))
             for lang in langs:
                 f.write("add_languages('{}', required : false)\n".format(lang))
             f.write(contents)
@@ -2955,6 +2958,11 @@ class FailureTests(BasePlatformTests):
         self.assertMesonDoesNotOutput("dict = {}",
                                       ".*WARNING.*Project targetting.*but.*",
                                       meson_version='>= 0.47.0')
+
+    def test_feature_invalid_version(self):
+        os.environ['MESON_UNIT_TEST'] = '1'
+        self.assertMesonRaises("exception(mode: 'red')",
+                               "Invalid version string", meson_version=">0.44.0")
 
     def test_using_too_recent_feature_dependency(self):
         self.assertMesonOutputs("dependency('pcap', required: false)",

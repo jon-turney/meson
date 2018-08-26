@@ -2520,7 +2520,8 @@ external dependencies (including libraries) must go to "dependencies".''')
         self.validate_arguments(args, 1, [str])
         raise InterpreterException('Problem encountered: ' + args[0])
 
-    @noKwargs
+    @permittedKwargs({'mode'})
+    @FeatureNewKwargs('exception', 'invalid', ['mode'])
     def func_exception(self, node, args, kwargs):
         self.validate_arguments(args, 0, [])
         raise Exception()
