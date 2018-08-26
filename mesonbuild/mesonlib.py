@@ -397,6 +397,7 @@ def detect_vcs(source_dir):
 class VersionScheme(enum.Enum):
     rpm = 1
     meson = 2
+    semvar = 3
 
 # a helper class which implements the same version ordering as RPM
 @functools.total_ordering
@@ -504,7 +505,73 @@ class MesonVersion:
         # otherwise equal
         return 0
 
-def _version_extract_cmpop(vstr2):
+# a helper class which implements the semver version ordering
+#
+# This is slightly relaxed compared to the specification at https://semver.org/
+# in that:
+#
+# - the version may consist of an arbitrary number of components, rather than
+# the exactly three of major.minor.patch
+# - omitted trailing components are understood to have the value 0
+# - leading zeroes are permitted
+#
+@functools.total_ordering
+class SemVersion:
+    def __init__(self, s):
+        s = s.strip()
+        self._s = s
+        match = re.match(r'([0-9.]+)(-[0-9A-Za-z-.]*|)(\+[0-9A-Za-z-.]*|)', s)
+        if match is None:
+            msg = 'Invalid semver version string {!r}.'
+            raise MesonException(msg.format(s))
+
+        self._numpart = [int(x) for x in match.group(1).rstrip('.').split('.')]
+        self._prerelease = match.group(2).rstrip('.').split('.')
+        self._metadata = match.group(3).rstrip('.').split('.')
+
+    def __str__(self):
+        return '%s (version=%s, prerelease=%s, metadata=%s)' % (
+            self._s,
+            '.'.join([str(x) for x in self._numpart]),
+            '.'.join(self._prerelease),
+            '.'.join(self._metadata))
+
+    def __lt__(self, other):
+        return self.__cmp__(other) == -1
+
+    def __eq__(self, other):
+        return self.__cmp__(other) == 0
+
+    def __cmp__(self, other):
+        def cmp(a, b):
+            return (a > b) - (a < b)
+
+        # compare versions from left to right
+        maxlen = max(len(self._numpart), len(other._numpart))
+        for i in range(0, maxlen):
+            # extend with '0' elements to same length
+            a = self._numpart[i] if i < len(self._numpart) else 0
+            b = other._numpart[i] if i < len(other._numpart) else 0
+
+            c = cmp(a, b)
+            if c != 0:
+                return c
+
+        # if only one is pre-release, it is the lesser
+        c = cmp(len(self._prerelease) > 0, len(other._prerelease) > 0)
+        if c != 0:
+            return c
+
+        # compare pre-release XXX
+
+        # otherwise equal (metadata is not considered in comparison)
+        return 0
+
+def _version_extract_cmpop(vstr2, kind):
+    if vstr2.startswith('semver:'):
+        kind = VersionScheme.semver
+        vstr2 = vstr2[7:]
+
     if vstr2.startswith('>='):
         cmpop = operator.ge
         vstr2 = vstr2[2:]
@@ -529,18 +596,20 @@ def _version_extract_cmpop(vstr2):
     else:
         cmpop = operator.eq
 
-    return (cmpop, vstr2)
+    return (cmpop, vstr2, kind)
 
 def _version_compare_kind(vstr1, vstr2, cmpop, kind):
     if kind == VersionScheme.rpm:
         return cmpop(RpmVersion(vstr1), RpmVersion(vstr2))
     elif kind == VersionScheme.meson:
         return cmpop(MesonVersion(vstr1, strict=False), MesonVersion(vstr2))
+    elif kind == VersionScheme.semver:
+        return cmpop(SemVersion(vstr1), SemVersion(vstr2))
     else:
         raise MesonException('Unknown version scheme %s' % kind)
 
 def version_compare(vstr1, vstr2, kind=VersionScheme.rpm):
-    (cmpop, vstr2) = _version_extract_cmpop(vstr2)
+    (cmpop, vstr2, kind) = _version_extract_cmpop(vstr2, kind)
     return _version_compare_kind(vstr1, vstr2, cmpop, kind)
 
 def version_compare_many(vstr1, conditions):

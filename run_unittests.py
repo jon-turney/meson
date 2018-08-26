@@ -39,7 +39,7 @@ from mesonbuild.interpreter import Interpreter, ObjectHolder
 from mesonbuild.mesonlib import (
     is_windows, is_osx, is_cygwin, is_dragonflybsd, is_openbsd,
     windows_proof_rmtree, python_command, version_compare,
-    BuildDirLock, RpmVersion, MesonVersion
+    BuildDirLock, RpmVersion, MesonVersion, SemVersion
 )
 from mesonbuild.environment import detect_ninja
 from mesonbuild.mesonlib import MesonException, EnvironmentException
@@ -798,6 +798,19 @@ class InternalTests(unittest.TestCase):
 
         # test version_compare works when coredata.version is a dev version
         self.assertEqual(mesonbuild.mesonlib.version_compare('0.48.0.dev1', '==0.48.0', mesonbuild.mesonlib.VersionScheme.meson), True)
+
+        for (a, b, result) in [
+                ('1.0.0', '2.0.0', -1),
+                ('2.0.0', '2.1.0', -1),
+                ('2.1.0', '2.1.1', -1),
+#                ('1.0.0-alpha', '1.0.0', -1),
+#                ('1.0.0-alpha', '1.0.0-alpha.1', -1),
+#                1.0.0-alpha.1 < 1.0.0-alpha.beta < 1.0.0-beta < 1.0.0-beta.2 < 1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0.
+        ]:
+            ver_a = SemVersion(a)
+            ver_b = SemVersion(b)
+            self.assertEqual(ver_a.__cmp__(ver_b), result)
+            self.assertEqual(ver_b.__cmp__(ver_a), -result)
 
 @unittest.skipIf(is_tarball(), 'Skipping because this is a tarball release')
 class DataTests(unittest.TestCase):
