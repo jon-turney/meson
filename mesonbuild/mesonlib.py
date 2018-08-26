@@ -14,6 +14,7 @@
 
 """A library of random helper functionality."""
 
+import enum
 import functools
 import sys
 import stat
@@ -391,9 +392,15 @@ def detect_vcs(source_dir):
                 return vcs
     return None
 
+# enumeration of kinds of version scheme we know how to compare
+@enum.unique
+class VersionScheme(enum.Enum):
+    rpm = 1
+    meson = 2
+
 # a helper class which implements the same version ordering as RPM
 @functools.total_ordering
-class Version:
+class RpmVersion:
     def __init__(self, s):
         self._s = s
 
@@ -443,6 +450,60 @@ class Version:
         # otherwise, the version with a suffix remaining is greater
         return cmp(len(self._v), len(other._v))
 
+# a helper class which implements the 'meson' version ordering
+#
+# This is the version comparison historically used by meson
+#
+# - a version consists of '.'-separated numeric elements
+# - any non-numeric element is an error if strict, otherwise terminates version
+# - the versions are extended with '0' elements to the same length
+# - the elements are numerically compared from left to right
+#
+@functools.total_ordering
+class MesonVersion:
+    def __init__(self, s, strict=True):
+        s = s.strip()
+        self._s = s
+
+        # grab leading numbers
+        self._v = []
+        for x in s.rstrip('.').split('.'):
+            try:
+                self._v.append(int(x))
+            except ValueError as e:
+                if strict:
+                    msg = 'Invalid version string: {!r}; only ' \
+                        'numeric digits separated by "." are allowed: ' + str(e)
+                    raise MesonException(msg.format(s))
+                break
+
+    def __str__(self):
+        return '%s (%s%s)' % (self._s, '.'.join([str(x) for x in self._v]))
+
+    def __lt__(self, other):
+        return self.__cmp__(other) == -1
+
+    def __eq__(self, other):
+        return self.__cmp__(other) == 0
+
+    def __cmp__(self, other):
+        def cmp(a, b):
+            return (a > b) - (a < b)
+
+        # compare elements from left to right
+        maxlen = max(len(self._v), len(other._v))
+        for i in range(0, maxlen):
+            # extend with '0' elements to same length
+            a = self._v[i] if i < len(self._v) else 0
+            b = other._v[i] if i < len(other._v) else 0
+
+            c = cmp(a, b)
+            if c != 0:
+                return c
+
+        # otherwise equal
+        return 0
+
 def _version_extract_cmpop(vstr2):
     if vstr2.startswith('>='):
         cmpop = operator.ge
@@ -470,9 +531,17 @@ def _version_extract_cmpop(vstr2):
 
     return (cmpop, vstr2)
 
-def version_compare(vstr1, vstr2):
+def _version_compare_kind(vstr1, vstr2, cmpop, kind):
+    if kind == VersionScheme.rpm:
+        return cmpop(RpmVersion(vstr1), RpmVersion(vstr2))
+    elif kind == VersionScheme.meson:
+        return cmpop(MesonVersion(vstr1, strict=False), MesonVersion(vstr2))
+    else:
+        raise MesonException('Unknown version scheme %s' % kind)
+
+def version_compare(vstr1, vstr2, kind=VersionScheme.rpm):
     (cmpop, vstr2) = _version_extract_cmpop(vstr2)
-    return cmpop(Version(vstr1), Version(vstr2))
+    return _version_compare_kind(vstr1, vstr2, cmpop, kind)
 
 def version_compare_many(vstr1, conditions):
     if not isinstance(conditions, (list, tuple, frozenset)):
@@ -510,20 +579,7 @@ def version_compare_condition_with_min(condition, minimum):
     else:
         cmpop = operator.le
 
-    # Declaring a project(meson_version: '>=0.46') and then using features in
-    # 0.46.0 is valid, because (knowing the meson versioning scheme) '0.46.0' is
-    # the lowest version which satisfies the constraint '>=0.46'.
-    #
-    # But this will fail here, because the minimum version required by the
-    # version constraint ('0.46') is strictly less (in our version comparison)
-    # than the minimum version needed for the feature ('0.46.0').
-    #
-    # Map versions in the constraint of the form '0.46' to '0.46.0', to bodge
-    # around this problem.
-    if re.match('^\d+.\d+$', condition):
-        condition += '.0'
-
-    return cmpop(Version(minimum), Version(condition))
+    return cmpop(MesonVersion(minimum), MesonVersion(condition))
 
 def default_libdir():
     if is_debianlike():

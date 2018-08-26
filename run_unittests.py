@@ -39,7 +39,7 @@ from mesonbuild.interpreter import Interpreter, ObjectHolder
 from mesonbuild.mesonlib import (
     is_windows, is_osx, is_cygwin, is_dragonflybsd, is_openbsd,
     windows_proof_rmtree, python_command, version_compare,
-    BuildDirLock, Version
+    BuildDirLock, RpmVersion, MesonVersion
 )
 from mesonbuild.environment import detect_ninja
 from mesonbuild.mesonlib import MesonException, EnvironmentException
@@ -781,10 +781,23 @@ class InternalTests(unittest.TestCase):
                 ("15.8b", "15.8.0.1", -1),
                 ("1.2rc1", "1.2.0", -1),
         ]:
-            ver_a = Version(a)
-            ver_b = Version(b)
+            ver_a = RpmVersion(a)
+            ver_b = RpmVersion(b)
             self.assertEqual(ver_a.__cmp__(ver_b), result)
             self.assertEqual(ver_b.__cmp__(ver_a), -result)
+
+        for (a, b, result) in [
+                ('0.47', '0.46', 1),
+                ('0.48', '0.48.0', 0),
+                ('2.29.', '2.29.0', 0),
+        ]:
+            ver_a = MesonVersion(a)
+            ver_b = MesonVersion(b)
+            self.assertEqual(ver_a.__cmp__(ver_b), result)
+            self.assertEqual(ver_b.__cmp__(ver_a), -result)
+
+        # test version_compare works when coredata.version is a dev version
+        self.assertEqual(mesonbuild.mesonlib.version_compare('0.48.0.dev1', '==0.48.0', mesonbuild.mesonlib.VersionScheme.meson), True)
 
 @unittest.skipIf(is_tarball(), 'Skipping because this is a tarball release')
 class DataTests(unittest.TestCase):
@@ -2758,8 +2771,10 @@ class FailureTests(BasePlatformTests):
         if langs is None:
             langs = []
         with open(self.mbuild, 'w') as f:
-            meson_version = meson_version or mesonbuild.coredata.version
-            f.write("project('output test', 'c', 'cpp', meson_version: '{}')\n".format(meson_version))
+            f.write("project('output test', 'c', 'cpp'")
+            if meson_version:
+                f.write(", meson_version: '{}'".format(meson_version))
+            f.write(")\n".format(meson_version))
             for lang in langs:
                 f.write("add_languages('{}', required : false)\n".format(lang))
             f.write(contents)

@@ -2461,7 +2461,7 @@ external dependencies (including libraries) must go to "dependencies".''')
             cv = coredata.version
             pv = kwargs['meson_version']
             mesonlib.project_meson_versions[self.subproject] = pv
-            if not mesonlib.version_compare(cv, pv):
+            if not mesonlib.version_compare(cv, pv, mesonlib.VersionScheme.meson):
                 raise InterpreterException('Meson version is %s but project requires %s.' % (cv, pv))
         self.build.projects[self.subproject] = proj_name
         mlog.log('Project name:', mlog.bold(proj_name))
