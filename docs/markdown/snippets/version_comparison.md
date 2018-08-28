@@ -19,6 +19,6 @@ version required, e.g. `'==0.11.0'`.
 `project(meson_version:)` and meson feature checks continue to use the same
 version comparison algorithm as before.
 
-Using characters other than digits and `'0'` in the version for a
+Using characters other than digits and `'.'` in the version for a
 `project(meson_version:)` version constraint is now an error (previously they
 were silently ignored).
