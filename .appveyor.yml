@@ -38,6 +38,10 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       BOOST_ROOT: C:\Libraries\Boost_1_64_0
 
+    - arch: x64
+      compiler: llvm
+      backend: ninja
+
 platform:
   - x64
 
@@ -104,10 +108,11 @@ install:
   - cmd: if not %compiler%==cygwin ( set "PATH=%cd%;%MESON_PYTHON_PATH%;%PATH%;" )
   - cmd: if %compiler%==cygwin ( set WRAPPER=ci\run-in-cygwin.bat )
   - cmd: if %compiler%==cygwin ( %WRAPPER% which %PYTHON% ) else ( where %PYTHON% )
+  - cmd: if %compiler%==llvm ( set WINDRES="C:\Program Files (x86)\Windows Kits\10\bin\x64\rc.exe" )
 
-  # pkg-config is needed for the pkg-config tests on msvc
+  # pkg-config is needed for the pkg-config tests on msvc and llvm
   - ps: |
-        If($Env:compiler.StartsWith('msvc')) {
+        If($Env:compiler -like 'msvc*' -or $Env:compiler -like 'llvm') {
           DownloadFile -Source 'http://nirbheek.in/files/binaries/pkg-config/win32/pkg-config.exe' `
                        -Destination 'C:\projects\meson\pkg-config.exe'
         }
