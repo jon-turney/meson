@@ -1465,6 +1465,12 @@ class ClangCompiler(GnuLikeCompiler):
     def get_colorout_args(self, colortype):
         return clang_color_args[colortype][:]
 
+    def get_linker_always_args(self):
+        # Windows clang may use lld-link by default, which only supports
+        # LINK-style options
+        if self.compiler_type.is_windows_compiler:
+            return ['-fuse-ld=ld64.lld']
+
     def get_optimization_args(self, optimization_level):
         return clike_optimization_args[optimization_level]
 

@@ -67,6 +67,13 @@ class WindowsModule(ExtensionModule):
         if not rescomp or not rescomp.found():
             if comp.id == 'msvc':
                 rescomp = ExternalProgram('rc', silent=True)
+            elif comp.id == 'llvm':
+                rescomp = ExternalProgram('llvm-rc', silent=True)
+                # llvm-rc isn't here yet, so also look for alternatives
+                if not rescomp.found():
+                    rescomp = ExternalProgram('windres', silent=True)
+                if not rescomp.found():
+                    rescomp = ExternalProgram('rc', silent=True)
             else:
                 rescomp = ExternalProgram('windres', silent=True)
 
