@@ -67,10 +67,7 @@ class GLDependency(ExternalDependency):
 
     @staticmethod
     def get_methods():
-        if mesonlib.is_osx() or mesonlib.is_windows():
-            return [DependencyMethods.PKGCONFIG, DependencyMethods.SYSTEM]
-        else:
-            return [DependencyMethods.PKGCONFIG]
+        return [DependencyMethods.PKGCONFIG, DependencyMethods.SYSTEM]
 
     def log_tried(self):
         return 'system'
@@ -518,10 +515,7 @@ class SDL2Dependency(ExternalDependency):
 
     @staticmethod
     def get_methods():
-        if mesonlib.is_osx():
-            return [DependencyMethods.PKGCONFIG, DependencyMethods.CONFIG_TOOL, DependencyMethods.EXTRAFRAMEWORK]
-        else:
-            return [DependencyMethods.PKGCONFIG, DependencyMethods.CONFIG_TOOL]
+        return [DependencyMethods.PKGCONFIG, DependencyMethods.CONFIG_TOOL, DependencyMethods.EXTRAFRAMEWORK]
 
 
 class WxDependency(ConfigToolDependency):

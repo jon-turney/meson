@@ -1321,7 +1321,7 @@ class ExtraFrameworkDependency(ExternalDependency):
     def detect(self, name, path):
         # should use the compiler to look for frameworks, rather than peering at
         # the filesystem, so we can also find them when cross-compiling
-        if self.want_cross:
+        if self.want_cross or not mesonlib.for_darwin(self.want_cross, self.env):
             return
 
         lname = name.lower()

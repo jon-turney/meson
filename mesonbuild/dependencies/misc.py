@@ -280,7 +280,7 @@ class Python3Dependency(ExternalDependency):
     def __init__(self, environment, kwargs):
         super().__init__('python3', environment, None, kwargs)
 
-        if self.want_cross:
+        if self.want_cross or not mesonlib.for_windows(self.want_cross, self.env):
             return
 
         self.name = 'python3'
@@ -394,12 +394,7 @@ class Python3Dependency(ExternalDependency):
 
     @staticmethod
     def get_methods():
-        if mesonlib.is_windows():
-            return [DependencyMethods.PKGCONFIG, DependencyMethods.SYSCONFIG]
-        elif mesonlib.is_osx():
-            return [DependencyMethods.PKGCONFIG, DependencyMethods.EXTRAFRAMEWORK]
-        else:
-            return [DependencyMethods.PKGCONFIG]
+        return [DependencyMethods.PKGCONFIG, DependencyMethods.SYSCONFIG, DependencyMethods.EXTRAFRAMEWORK]
 
     def log_tried(self):
         return 'sysconfig'
@@ -483,11 +478,7 @@ class CupsDependency(ExternalDependency):
 
     @staticmethod
     def get_methods():
-        if mesonlib.is_osx():
-            return [DependencyMethods.PKGCONFIG, DependencyMethods.CONFIG_TOOL, DependencyMethods.EXTRAFRAMEWORK]
-        else:
-            return [DependencyMethods.PKGCONFIG, DependencyMethods.CONFIG_TOOL]
-
+        return [DependencyMethods.PKGCONFIG, DependencyMethods.CONFIG_TOOL, DependencyMethods.EXTRAFRAMEWORK]
 
 class LibWmfDependency(ExternalDependency):
     def __init__(self, environment, kwargs):
