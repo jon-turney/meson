@@ -38,70 +38,71 @@ class MPIDependency(ExternalDependency):
     def __init__(self, environment, kwargs):
         language = kwargs.get('language', 'c')
         super().__init__('mpi', environment, language, kwargs)
-        kwargs['required'] = False
-        kwargs['silent'] = True
-        self.is_found = False
 
-        # NOTE: Only OpenMPI supplies a pkg-config file at the moment.
         if language == 'c':
             env_vars = ['MPICC']
-            pkgconfig_files = ['ompi-c']
             default_wrappers = ['mpicc']
         elif language == 'cpp':
             env_vars = ['MPICXX']
-            pkgconfig_files = ['ompi-cxx']
             default_wrappers = ['mpic++', 'mpicxx', 'mpiCC']
         elif language == 'fortran':
             env_vars = ['MPIFC', 'MPIF90', 'MPIF77']
-            pkgconfig_files = ['ompi-fort']
             default_wrappers = ['mpifort', 'mpif90', 'mpif77']
         else:
             raise DependencyException('Language {} is not supported with MPI.'.format(language))
 
-        for pkg in pkgconfig_files:
-            try:
-                pkgdep = PkgConfigDependency(pkg, environment, kwargs, language=self.language)
-                if pkgdep.found():
-                    self.compile_args = pkgdep.get_compile_args()
-                    self.link_args = pkgdep.get_link_args()
-                    self.version = pkgdep.get_version()
-                    self.is_found = True
-                    self.pcdep = pkgdep
-                    break
-            except Exception:
-                pass
+        # Prefer environment.
+        for var in env_vars:
+            if var in os.environ:
+                wrappers = [os.environ[var]]
+                break
+        else:
+            # Or search for default wrappers.
+            wrappers = default_wrappers
 
-        if not self.is_found:
-            # Prefer environment.
-            for var in env_vars:
-                if var in os.environ:
-                    wrappers = [os.environ[var]]
-                    break
-            else:
-                # Or search for default wrappers.
-                wrappers = default_wrappers
-
-            for prog in wrappers:
-                result = self._try_openmpi_wrapper(prog)
-                if result is not None:
-                    self.is_found = True
-                    self.version = result[0]
-                    self.compile_args = self._filter_compile_args(result[1])
-                    self.link_args = self._filter_link_args(result[2])
-                    break
-                result = self._try_other_wrapper(prog)
-                if result is not None:
-                    self.is_found = True
-                    self.version = result[0]
-                    self.compile_args = self._filter_compile_args(result[1])
-                    self.link_args = self._filter_link_args(result[2])
-                    break
+        for prog in wrappers:
+            result = self._try_openmpi_wrapper(prog)
+            if result is not None:
+                self.is_found = True
+                self.version = result[0]
+                self.compile_args = self._filter_compile_args(result[1])
+                self.link_args = self._filter_link_args(result[2])
+                break
+            result = self._try_other_wrapper(prog)
+            if result is not None:
+                self.is_found = True
+                self.version = result[0]
+                self.compile_args = self._filter_compile_args(result[1])
+                self.link_args = self._filter_link_args(result[2])
+                break
 
         if not self.is_found and mesonlib.is_windows():
             result = self._try_msmpi()
             if result is not None:
                 self.is_found = True
                 self.version, self.compile_args, self.link_args = result
+
+    @classmethod
+    def _factory(cls, environment, kwargs):
+        # NOTE: Only OpenMPI supplies a pkg-config file at the moment.
+        language = kwargs.get('language', 'c')
+        if language == 'c':
+            pkg = 'ompi-c'
+        elif language == 'cpp':
+            pkg = 'ompi-cxx'
+        elif language == 'fortran':
+            pkg = 'ompi-fort'
+        else:
+            raise DependencyException('Language {} is not supported with MPI.'.format(language))
+
+        candidates = []
+        candidates.append(functools.partial(
+            PkgConfigDependency, pkg, environment, kwargs, language=language))
+
+        candidates.append(functools.partial(
+            MPIDependency, environment, kwargs))
+
+        return candidates
 
     def _filter_compile_args(self, args):
         """
