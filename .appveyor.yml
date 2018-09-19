@@ -108,7 +108,13 @@ install:
   - cmd: if not %compiler%==cygwin ( set "PATH=%cd%;%MESON_PYTHON_PATH%;%PATH%;" )
   - cmd: if %compiler%==cygwin ( set WRAPPER=ci\run-in-cygwin.bat )
   - cmd: if %compiler%==cygwin ( %WRAPPER% which %PYTHON% ) else ( where %PYTHON% )
-  - cmd: if %compiler%==llvm ( set WINDRES="C:\Program Files (x86)\Windows Kits\10\bin\x64\rc.exe" )
+  - ps: |
+        If($Env:compiler -like 'llvm') {
+          DownloadFile -Source 'http://releases.llvm.org/7.0.0/LLVM-7.0.0-win64.exe' `
+                       -Destination 'C:\projects\meson\LLVM-7.0.0-win64.exe'
+          Start-Process -Wait "C:\projects\meson\LLVM-7.0.0-win64.exe" "/S"
+        }
+  - cmd: if %compiler%==llvm ( set "PATH=C:\Program Files\LLVM\bin;%PATH%" )
 
   # pkg-config is needed for the pkg-config tests on msvc and llvm
   - ps: |
