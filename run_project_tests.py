@@ -623,6 +623,9 @@ def _run_tests(all_tests, log_name_base, extra_args):
     return passing_tests, failing_tests, skipped_tests
 
 def check_file(fname):
+    if 'GIT_AUTOCRLF' in os.environ:
+        return
+
     linenum = 1
     with open(fname, 'rb') as f:
         lines = f.readlines()
