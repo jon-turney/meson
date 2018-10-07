@@ -81,7 +81,7 @@ class AutoDeletedDir:
 
 failing_logs = []
 print_debug = 'MESON_PRINT_TEST_OUTPUT' in os.environ
-under_ci = not {'TRAVIS', 'APPVEYOR'}.isdisjoint(os.environ)
+under_ci = 'CI' in os.environ
 do_debug = under_ci or print_debug
 no_meson_log_msg = 'No meson-log.txt found.'
 
@@ -623,6 +623,9 @@ def _run_tests(all_tests, log_name_base, extra_args):
     return passing_tests, failing_tests, skipped_tests
 
 def check_file(fname):
+    if 'GIT_AUTOCRLF' in os.environ:
+        return
+
     linenum = 1
     with open(fname, 'rb') as f:
         lines = f.readlines()
