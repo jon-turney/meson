@@ -601,6 +601,7 @@ def _run_tests(all_tests, log_name_base, failfast, extra_args):
                                                                          'time': '%.3f' % total_time})
                 if result.msg != '':
                     ET.SubElement(current_test, 'failure', {'message': result.msg})
+            if result:
                 stdoel = ET.SubElement(current_test, 'system-out')
                 stdoel.text = result.stdo
                 stdeel = ET.SubElement(current_test, 'system-err')
