@@ -4,6 +4,8 @@ steps:
      $env:PATHEXT += ';.py'
 
      where.exe python
+     where.exe python3
+     where.exe py
 
      python ./skip_ci.py --base-branch-env=SYSTEM_PULLREQUEST_TARGETBRANCH --is-pull-env=SYSTEM_PULLREQUEST_PULLREQUESTID --base-branch-origin
      if ($LastExitCode -ne 0) {
@@ -75,11 +77,16 @@ steps:
        Remove-Item $tempFile
      }
 
+     gci env: | Format-Table -Wrap -AutoSize
+
      # add .NET framework tools to path for resgen for C# tests
      # (always use 32-bit tool, as there doesn't seem to be a 64-bit tool)
      if ((Get-Command "resgen.exe" -ErrorAction SilentlyContinue) -eq $null) {
        $env:Path = "$env:WindowsSDK_ExecutablePath_x86;$env:Path"
      }
+
+     where.exe resgen
+     where.exe csc
 
      if ($env:backend -eq 'ninja') {
        ninja --version
