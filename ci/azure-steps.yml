@@ -85,6 +85,9 @@ steps:
        $env:Path = "$env:WindowsSDK_ExecutablePath_x86;$env:Path"
      }
 
+     # add gtk/glib to pkg-config path
+     $env:PKG_CONFIG_PATH = "$env:GTK_BASEPATH\lib\pkgconfig;$env:PKG_CONFIG_PATH"
+
      where.exe resgen
      where.exe csc
 
