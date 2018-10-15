@@ -878,9 +878,12 @@ int dummy;
     def add_build(self, build):
         self.build_elements.append(build)
 
-        # increment rule refcount
         if build.rulename != 'phony':
+            # increment rule refcount
             self.ruledict[build.rulename].refcount += 1
+
+            # reference rule
+            build.rule = self.ruledict[build.rulename]
 
     def write_rules(self, outfile):
         for r in self.rules:
