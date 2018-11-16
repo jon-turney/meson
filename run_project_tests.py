@@ -83,6 +83,8 @@ class AutoDeletedDir:
 failing_logs = []
 print_debug = 'MESON_PRINT_TEST_OUTPUT' in os.environ
 under_ci = 'CI' in os.environ
+ci_system = next((e for e in ['APPVEYOR', 'TRAVIS', 'AZURE'] if e in os.environ), '').lower()
+ci_config = os.environ.get('MESON_CI_CONFIG', '')
 do_debug = under_ci or print_debug
 no_meson_log_msg = 'No meson-log.txt found.'
 
@@ -472,32 +474,33 @@ def have_java():
         return True
     return False
 
-def skippable(suite, test):
+def skip_dont_care(suite, test):
     if not under_ci:
         return True
 
+    # Non-frameworks test are allowed to determine their own skipping under CI
     if not suite.endswith('frameworks'):
         return True
 
-    # gtk-doc test may be skipped, pending upstream fixes for spaces in
-    # filenames landing in the distro used for CI
-    if test.endswith('10 gtk-doc'):
-        return True
+    return False
 
-    # No frameworks test should be skipped on linux CI, as we expect all
-    # prerequisites to be installed
-    if mesonlib.is_linux():
-        return False
+def skip_expected(suite, test):
+    # If the name of this CI system or configuration appears in the skip file,
+    # this test should be skipped (as we don't expect all the prerequisites to
+    # be installed)
+    skip_file = os.path.join(test, 'skip_ci_configs.txt')
+    try:
+        with open(skip_file) as f:
+            for line in f:
+                line = line.strip()
+                if line == ci_system:
+                    return True
+                if line == ci_config:
+                    return True
+    except FileNotFoundError:
+        pass
 
-    # Boost test should only be skipped for windows CI build matrix entries
-    # which don't define BOOST_ROOT
-    if test.endswith('1 boost'):
-        if mesonlib.is_windows():
-            return 'BOOST_ROOT' not in os.environ
-        return False
-
-    # Other framework tests are allowed to be skipped on other platforms
-    return True
+    return False
 
 def skip_csharp(backend):
     if backend is not Backend.ninja:
@@ -609,13 +612,39 @@ def _run_tests(all_tests, log_name_base, failfast, extra_args):
                 result = result.result()
             except CancelledError:
                 continue
-            if (result is None) or (('MESON_SKIP_TEST' in result.stdo) and (skippable(name, t.as_posix()))):
+
+            if result is None:
+                is_skipped = True
+                expected_skip = True
+                unexpected_skip = False
+            elif 'MESON_SKIP_TEST' in result.stdo:
+                is_skipped = True
+                expected_skip = skip_dont_care(name, t.as_posix()) or skip_expected(name, t.as_posix())
+                unexpected_skip = not skip_dont_care(name, t.as_posix())
+            else:
+                is_skipped = False
+                expected_skip = False
+                unexpected_skip = (not skip_dont_care(name, t.as_posix())) and skip_expected(name, t.as_posix())
+
+#            print("dont care %d expectation %d skipped %d" % (
+#                skip_dont_care(name, t.as_posix()),
+#                skip_expected(name, t.as_posix()),
+#                is_skipped))
+
+            if expected_skip:
                 print(yellow('Skipping:'), t.as_posix())
                 current_test = ET.SubElement(current_suite, 'testcase', {'name': testname,
                                                                          'classname': name})
                 ET.SubElement(current_test, 'skipped', {})
                 skipped_tests += 1
             else:
+                if unexpected_skip:
+                    if is_skipped:
+                        skip_msg = 'Test asked to be skipped, but was not expected to'
+                    else:
+                        skip_msg = 'Test ran, but was expected to be skipped'
+                    result.msg = "%s for MESON_CI_CONFIG '%s' on CI system '%s'" % (skip_msg, ci_config, ci_system)
+
                 without_install = "" if len(install_commands) > 0 else " (without install)"
                 if result.msg != '':
                     print(red('Failed test{} during {}: {!r}'.format(without_install, result.step.name, t.as_posix())))

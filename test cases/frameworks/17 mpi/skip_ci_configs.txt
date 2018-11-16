@@ -1,0 +1,5 @@
+appveyor
+vc2015x86ninja
+vc2015x86vs
+clangclx64ninja
+osxclangx86_64

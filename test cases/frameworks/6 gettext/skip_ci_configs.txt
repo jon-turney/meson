@@ -1,0 +1,4 @@
+msvc2015x86ninja
+msvc2015x86vs2015
+osxclangx86_64
+azure

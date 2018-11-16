@@ -1,0 +1,3 @@
+clangclx64ninja
+msys2-mingwx86ninja
+msys2-mingwx64ninja

@@ -130,6 +130,7 @@ build_script:
   - cmd: if %backend%==ninja ( %WRAPPER% ninja.exe --version ) else ( MSBuild /version & echo. )
 
 test_script:
+  - cmd: set MESON_CI_CONFIG=%compiler%%arch%%backend%
   - cmd: echo Running tests for %arch% and %compiler% with the %backend% backend
   - cmd: "%WRAPPER% %PYTHON% run_tests.py --backend=%backend%"
 

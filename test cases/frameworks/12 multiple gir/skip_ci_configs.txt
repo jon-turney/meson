@@ -1,0 +1,6 @@
+msys2-mingwx86ninja
+msys2-mingwx64ninja
+msvc2015x86ninja
+msvc2015x86vs2015
+azure
+osxclangx86_64

@@ -10,6 +10,8 @@ trigger:
 variables:
   MESON_FIXED_NINJA: 1
   CI: 1
+  AZURE: 1
+  MESON_CI_CONFIG: $(Agent.JobName)
 
 jobs:
 - job: vs2015
