@@ -652,7 +652,9 @@ class Environment:
             if 'clang' in out:
                 if 'Apple' in out or mesonlib.for_darwin(want_cross, self):
                     compiler_type = CompilerType.CLANG_OSX
-                elif 'windows' in out or mesonlib.for_windows(want_cross, self):
+                elif 'windows-msvc' in out:
+                    compiler_type = CompilerType.CLANG_WINDOWS
+                elif 'windows-gnu' in out:
                     compiler_type = CompilerType.CLANG_MINGW
                 else:
                     compiler_type = CompilerType.CLANG_STANDARD

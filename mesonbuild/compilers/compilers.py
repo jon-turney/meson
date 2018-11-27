@@ -1280,7 +1280,7 @@ class CompilerType(enum.Enum):
     CLANG_STANDARD = 10
     CLANG_OSX = 11
     CLANG_MINGW = 12
-    # Possibly clang-cl?
+    CLANG_WINDOWS = 13
 
     ICC_STANDARD = 20
     ICC_OSX = 21
@@ -1300,7 +1300,7 @@ class CompilerType(enum.Enum):
 
     @property
     def is_windows_compiler(self):
-        return self.name in ('GCC_MINGW', 'GCC_CYGWIN', 'CLANG_MINGW', 'ICC_WIN', 'ARM_WIN', 'CCRX_WIN')
+        return self.name in ('GCC_MINGW', 'GCC_CYGWIN', 'CLANG_MINGW', 'CLANG_WINDOWS', 'ICC_WIN', 'ARM_WIN', 'CCRX_WIN')
 
 
 def get_macos_dylib_install_name(prefix, shlib_name, suffix, soversion):
