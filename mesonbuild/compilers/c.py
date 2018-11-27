@@ -1117,9 +1117,9 @@ class CCompiler(Compiler):
 
 
 class ClangCCompiler(ClangCompiler, CCompiler):
-    def __init__(self, exelist, version, compiler_type, is_cross, exe_wrapper=None, **kwargs):
+    def __init__(self, exelist, version, compiler_type, is_cross, exe_wrapper, target, **kwargs):
         CCompiler.__init__(self, exelist, version, is_cross, exe_wrapper, **kwargs)
-        ClangCompiler.__init__(self, compiler_type)
+        ClangCompiler.__init__(self, compiler_type, target)
         default_warn_args = ['-Wall', '-Winvalid-pch']
         self.warn_args = {'1': default_warn_args,
                           '2': default_warn_args + ['-Wextra'],

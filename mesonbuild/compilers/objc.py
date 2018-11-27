@@ -61,9 +61,9 @@ class GnuObjCCompiler(GnuCompiler, ObjCCompiler):
 
 
 class ClangObjCCompiler(ClangCompiler, ObjCCompiler):
-    def __init__(self, exelist, version, compiler_type, is_cross, exe_wrapper=None):
+    def __init__(self, exelist, version, compiler_type, is_cross, exe_wrapper, target):
         ObjCCompiler.__init__(self, exelist, version, is_cross, exe_wrapper)
-        ClangCompiler.__init__(self, compiler_type)
+        ClangCompiler.__init__(self, compiler_type, target)
         default_warn_args = ['-Wall', '-Winvalid-pch']
         self.warn_args = {'1': default_warn_args,
                           '2': default_warn_args + ['-Wextra'],

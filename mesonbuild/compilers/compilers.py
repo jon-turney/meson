@@ -1620,7 +1620,7 @@ class ElbrusCompiler(GnuCompiler):
 
 
 class ClangCompiler(GnuLikeCompiler):
-    def __init__(self, compiler_type):
+    def __init__(self, compiler_type, target):
         super().__init__(compiler_type)
         self.id = 'clang'
         self.base_options.append('b_colorout')
@@ -1629,6 +1629,7 @@ class ClangCompiler(GnuLikeCompiler):
         # All Clang backends can also do LLVM IR
         self.can_compile_suffixes.add('ll')
         self.linker = ClangLinker(self)
+        self.target = target
 
     def get_colorout_args(self, colortype):
         return clang_color_args[colortype][:]
