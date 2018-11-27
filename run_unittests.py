@@ -1823,8 +1823,7 @@ class AllPlatformTests(BasePlatformTests):
                 if is_osx():
                     self.assertEqual(cc.compiler_type, mesonbuild.compilers.CompilerType.CLANG_OSX)
                 elif is_windows():
-                    # Not implemented yet
-                    self.assertEqual(cc.compiler_type, mesonbuild.compilers.CompilerType.CLANG_MINGW)
+                    self.assertEqual(cc.compiler_type, mesonbuild.compilers.CompilerType.CLANG_WINDOWS)
                 else:
                     self.assertEqual(cc.compiler_type, mesonbuild.compilers.CompilerType.CLANG_STANDARD)
             if isinstance(cc, intel):
