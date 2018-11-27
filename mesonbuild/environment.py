@@ -548,6 +548,14 @@ class Environment:
                 errmsg += '\nRunning "{0}" gave "{1}"'.format(c, e)
         raise EnvironmentException(errmsg)
 
+    @staticmethod
+    def _clang_target_parse(out):
+        match = re.search('^Target: (.*)$', out, re.MULTILINE)
+        if match:
+            return match.group(1)
+        m = 'Failed to detect clang compiler target: stdout was\n{!r}'
+        raise EnvironmentException(m.format(out))
+
     def _detect_c_or_cpp_compiler(self, lang, want_cross):
         popen_exceptions = {}
         compilers, ccache, is_cross, exe_wrap = self._get_compilers(lang, want_cross)
@@ -648,8 +656,9 @@ class Environment:
                     compiler_type = CompilerType.CLANG_MINGW
                 else:
                     compiler_type = CompilerType.CLANG_STANDARD
+                target = self._clang_target_parse(out)
                 cls = ClangCCompiler if lang == 'c' else ClangCPPCompiler
-                return cls(ccache + compiler, version, compiler_type, is_cross, exe_wrap, full_version=full_version)
+                return cls(ccache + compiler, version, compiler_type, is_cross, exe_wrap, target, full_version=full_version)
             if 'Microsoft' in out or 'Microsoft' in err:
                 # Latest versions of Visual Studio print version
                 # number to stderr but earlier ones print version
@@ -775,9 +784,11 @@ class Environment:
                 version = self.get_gnu_version_from_defines(defines)
                 return GnuObjCCompiler(ccache + compiler, version, compiler_type, is_cross, exe_wrap, defines)
             if out.startswith('Apple LLVM'):
-                return ClangObjCCompiler(ccache + compiler, version, CompilerType.CLANG_OSX, is_cross, exe_wrap)
+                target = self._clang_target_parse(out)
+                return ClangObjCCompiler(ccache + compiler, version, CompilerType.CLANG_OSX, is_cross, exe_wrap, target)
             if out.startswith('clang'):
-                return ClangObjCCompiler(ccache + compiler, version, CompilerType.CLANG_STANDARD, is_cross, exe_wrap)
+                target = self._clang_target_parse(out)
+                return ClangObjCCompiler(ccache + compiler, version, CompilerType.CLANG_STANDARD, is_cross, exe_wrap, target)
         self._handle_exceptions(popen_exceptions, compilers)
 
     def detect_objcpp_compiler(self, want_cross):
@@ -802,9 +813,11 @@ class Environment:
                 version = self.get_gnu_version_from_defines(defines)
                 return GnuObjCPPCompiler(ccache + compiler, version, compiler_type, is_cross, exe_wrap, defines)
             if out.startswith('Apple LLVM'):
-                return ClangObjCPPCompiler(ccache + compiler, version, CompilerType.CLANG_OSX, is_cross, exe_wrap)
+                target = self._clang_target_parse(out)
+                return ClangObjCPPCompiler(ccache + compiler, version, CompilerType.CLANG_OSX, is_cross, exe_wrap, target)
             if out.startswith('clang'):
-                return ClangObjCPPCompiler(ccache + compiler, version, CompilerType.CLANG_STANDARD, is_cross, exe_wrap)
+                target = self._clang_target_parse(out)
+                return ClangObjCPPCompiler(ccache + compiler, version, CompilerType.CLANG_STANDARD, is_cross, exe_wrap, target)
         self._handle_exceptions(popen_exceptions, compilers)
 
     def detect_java_compiler(self):

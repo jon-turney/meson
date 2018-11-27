@@ -251,9 +251,6 @@ class DCompiler(Compiler):
     def get_std_exe_link_args(self):
         return []
 
-    def gen_import_library_args(self, implibname):
-        return ['-Wl,--out-implib=' + implibname]
-
     def build_rpath_args(self, build_dir, from_dir, rpath_paths, build_rpath, install_rpath):
         if is_windows():
             return []

@@ -23,6 +23,7 @@ from ..mesonlib import (
     EnvironmentException, MesonException, OrderedSet, version_compare,
     Popen_safe
 )
+from .linker import Linker, ClangLinker, VisualStudioLinker
 
 """This file contains the data files of all compilers Meson knows
 about. To support a new compiler, add its information below.
@@ -838,6 +839,7 @@ class Compiler:
         else:
             self.full_version = None
         self.base_options = []
+        self.linker = Linker(self)
 
     def __repr__(self):
         repr_str = "<{0}: v{1} `{2}`>"
@@ -898,17 +900,13 @@ class Compiler:
         return mesonlib.is_windows()
 
     def get_linker_always_args(self):
-        return []
+        return self.linker.get_linker_always_args()
 
     def get_linker_lib_prefix(self):
         return ''
 
     def gen_import_library_args(self, implibname):
-        """
-        Used only on Windows for libraries that need an import library.
-        This currently means C, C++, Fortran.
-        """
-        return []
+        return self.linker.gen_import_library_args(implibname)
 
     def get_preproc_flags(self):
         if self.get_language() in ('c', 'cpp', 'objc', 'objcpp'):
@@ -1612,7 +1610,7 @@ class ElbrusCompiler(GnuCompiler):
 
 
 class ClangCompiler(GnuLikeCompiler):
-    def __init__(self, compiler_type):
+    def __init__(self, compiler_type, target):
         super().__init__(compiler_type)
         self.id = 'clang'
         self.base_options.append('b_colorout')
@@ -1620,6 +1618,12 @@ class ClangCompiler(GnuLikeCompiler):
             self.base_options.append('b_bitcode')
         # All Clang backends can also do LLVM IR
         self.can_compile_suffixes.add('ll')
+        self.target = target
+
+        if self.target.endswith('windows-msvc'):
+            self.linker = VisualStudioLinker(self)
+        else:
+            self.linker = ClangLinker(self)
 
     def get_colorout_args(self, colortype):
         return clang_color_args[colortype][:]

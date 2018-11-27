@@ -28,6 +28,7 @@ from ..mesonlib import (
     for_windows, for_darwin, for_cygwin, for_haiku, for_openbsd,
 )
 from .c_function_attributes import C_FUNC_ATTRIBUTES
+from .linker import VisualStudioLinker
 
 from .compilers import (
     get_largefile_args,
@@ -138,7 +139,7 @@ class CCompiler(Compiler):
         return self.exelist[:]
 
     def get_linker_exelist(self):
-        return self.exelist[:]
+        return self.linker.get_linker_exelist()
 
     def get_preprocess_only_args(self):
         return ['-E', '-P']
@@ -160,7 +161,7 @@ class CCompiler(Compiler):
         return ['-o', target]
 
     def get_linker_output_args(self, outputname):
-        return ['-o', outputname]
+        return self.linker.get_linker_output_args(outputname)
 
     def get_coverage_args(self):
         return ['--coverage']
@@ -292,14 +293,6 @@ class CCompiler(Compiler):
             return []
         else:
             return ['-Wl,-export-dynamic']
-
-    def gen_import_library_args(self, implibname):
-        """
-        The name of the outputted import library
-
-        This implementation is used only on Windows by compilers that use GNU ld
-        """
-        return ['-Wl,--out-implib=' + implibname]
 
     def sanity_check_impl(self, work_dir, environment, sname, code):
         mlog.debug('Sanity testing ' + self.get_display_language() + ' compiler:', ' '.join(self.exelist))
@@ -1118,9 +1111,9 @@ class CCompiler(Compiler):
 
 
 class ClangCCompiler(ClangCompiler, CCompiler):
-    def __init__(self, exelist, version, compiler_type, is_cross, exe_wrapper=None, **kwargs):
+    def __init__(self, exelist, version, compiler_type, is_cross, exe_wrapper, target, **kwargs):
         CCompiler.__init__(self, exelist, version, is_cross, exe_wrapper, **kwargs)
-        ClangCompiler.__init__(self, compiler_type)
+        ClangCompiler.__init__(self, compiler_type, target)
         default_warn_args = ['-Wall', '-Winvalid-pch']
         self.warn_args = {'1': default_warn_args,
                           '2': default_warn_args + ['-Wextra'],
@@ -1132,6 +1125,13 @@ class ClangCCompiler(ClangCompiler, CCompiler):
                                                        ['none', 'c89', 'c99', 'c11',
                                                         'gnu89', 'gnu99', 'gnu11'],
                                                        'none')})
+
+        # XXX: msvc or gnu style ???
+        if self.compiler_type.is_windows_compiler:
+            opts.update({'c_winlibs': coredata.UserArrayOption('c_winlibs',
+                                                               'Windows libs to link against.',
+                                                               msvc_winlibs)})
+
         return opts
 
     def get_option_compile_args(self, options):
@@ -1142,14 +1142,10 @@ class ClangCCompiler(ClangCompiler, CCompiler):
         return args
 
     def get_option_link_args(self, options):
-        return []
+        return self.linker.get_option_link_args(options)
 
     def get_linker_always_args(self):
-        basic = super().get_linker_always_args()
-        if self.compiler_type.is_osx_compiler:
-            return basic + ['-Wl,-headerpad_max_install_names']
-        return basic
-
+        return self.linker.get_linker_always_args()
 
 class ArmclangCCompiler(ArmclangCompiler, CCompiler):
     def __init__(self, exelist, version, compiler_type, is_cross, exe_wrapper=None, **kwargs):
@@ -1208,9 +1204,7 @@ class GnuCCompiler(GnuCompiler, CCompiler):
         return args
 
     def get_option_link_args(self, options):
-        if self.compiler_type.is_windows_compiler:
-            return options['c_winlibs'].value[:]
-        return []
+        return self.linker.get_option_link_args(options)
 
     def get_pch_use_args(self, pch_dir, header):
         return ['-fpch-preprocess', '-include', os.path.basename(header)]
@@ -1295,6 +1289,7 @@ class VisualStudioCCompiler(CCompiler):
                           '3': ['/W4']}
         self.base_options = ['b_pch', 'b_ndebug', 'b_vscrt'] # FIXME add lto, pgo and the like
         self.is_64 = is_64
+        self.linker = VisualStudioLinker(self)
 
     # Override CCompiler.get_always_args
     def get_always_args(self):
@@ -1360,21 +1355,16 @@ class VisualStudioCCompiler(CCompiler):
         return []
 
     def get_linker_exelist(self):
-        # FIXME, should have same path as compiler.
-        # FIXME, should be controllable via cross-file.
-        if self.id == 'clang-cl':
-            return ['lld-link']
-        else:
-            return ['link']
+        return self.linker.get_linker_exelist()
 
     def get_linker_always_args(self):
-        return ['/nologo']
+        return self.linker.get_linker_always_args()
 
     def get_linker_output_args(self, outputname):
-        return ['/OUT:' + outputname]
+        return self.linker.get_linker_output_args(outputname)
 
     def get_linker_search_args(self, dirname):
-        return ['/LIBPATH:' + dirname]
+        return self.linker.get_linker_search_args(dirname)
 
     def linker_to_compiler_args(self, args):
         return ['/link'] + args
@@ -1407,10 +1397,6 @@ class VisualStudioCCompiler(CCompiler):
         objname = os.path.splitext(pchname)[0] + '.obj'
         return objname, ['/Yc' + header, '/Fp' + pchname, '/Fo' + objname]
 
-    def gen_import_library_args(self, implibname):
-        "The name of the outputted import library"
-        return ['/IMPLIB:' + implibname]
-
     def build_rpath_args(self, build_dir, from_dir, rpath_paths, build_rpath, install_rpath):
         return []
 
@@ -1432,7 +1418,7 @@ class VisualStudioCCompiler(CCompiler):
         return opts
 
     def get_option_link_args(self, options):
-        return options['c_winlibs'].value[:]
+        return self.linker.get_option_link_args(options)
 
     @classmethod
     def unix_args_to_native(cls, args):
