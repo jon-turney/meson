@@ -52,9 +52,20 @@ class WindowsModule(ExtensionModule):
         if not rescomp or not rescomp.found():
             comp = self.detect_compiler(state.compilers)
             if comp.id == 'msvc' or comp.id == 'clang-cl':
-                rescomp = ExternalProgram('rc', silent=True)
+                prefer = ['rc']
+            elif comp.id == 'clang':
+                # Ideally we'd always use llvm-rc and that would always be
+                # available, but it's not ready yet.  So we might have to use
+                # 'rc' (if we are compiling natively on Windows), or 'windres'
+                # (if we are cross-compiling or in an MSYS2 environment, etc.)
+                prefer = ['windres', 'rc']
             else:
-                rescomp = ExternalProgram('windres', silent=True)
+                prefer = ['windres']
+
+            for p in prefer:
+                rescomp = ExternalProgram(p, silent=True)
+                if rescomp.found():
+                    break
 
         if not rescomp.found():
             raise MesonException('Could not find Windows resource compiler')
