@@ -23,6 +23,7 @@ from ..mesonlib import (
     EnvironmentException, MesonException, OrderedSet, version_compare,
     Popen_safe
 )
+from .linker import Linker, ClangLinker
 
 """This file contains the data files of all compilers Meson knows
 about. To support a new compiler, add its information below.
@@ -852,6 +853,7 @@ class Compiler:
         else:
             self.full_version = None
         self.base_options = []
+        self.linker = Linker(self)
 
     def __repr__(self):
         repr_str = "<{0}: v{1} `{2}`>"
@@ -915,17 +917,13 @@ class Compiler:
         return mesonlib.is_windows()
 
     def get_linker_always_args(self):
-        return []
+        return self.linker.get_linker_always_args()
 
     def get_linker_lib_prefix(self):
         return ''
 
     def gen_import_library_args(self, implibname):
-        """
-        Used only on Windows for libraries that need an import library.
-        This currently means C, C++, Fortran.
-        """
-        return []
+        return self.linker.gen_import_library_args(implibname)
 
     def get_preproc_flags(self):
         if self.get_language() in ('c', 'cpp', 'objc', 'objcpp'):
@@ -1024,10 +1022,8 @@ class Compiler:
     def has_function(self, *args, **kwargs):
         raise EnvironmentException('Language %s does not support function checks.' % self.get_display_language())
 
-    @classmethod
-    def unix_args_to_native(cls, args):
-        "Always returns a copy that can be independently mutated"
-        return args[:]
+    def unix_args_to_native(self, args):
+        return self.linker.unix_args_to_native(args)
 
     def find_library(self, *args, **kwargs):
         raise EnvironmentException('Language {} does not support library finding.'.format(self.get_display_language()))
@@ -1149,7 +1145,7 @@ class Compiler:
         return []
 
     def get_std_shared_module_link_args(self, options):
-        return self.get_std_shared_lib_link_args()
+        return self.linker.get_std_shared_module_link_args(options)
 
     def get_link_whole_for(self, args):
         if isinstance(args, list) and not args:
@@ -1487,20 +1483,13 @@ class GnuLikeCompiler(abc.ABC):
         return get_gcc_soname_args(self.compiler_type, *args)
 
     def get_std_shared_lib_link_args(self):
-        return ['-shared']
+        return self.linker.get_std_shared_lib_link_args()
 
     def get_std_shared_module_link_args(self, options):
-        if self.compiler_type.is_osx_compiler:
-            return ['-bundle', '-Wl,-undefined,dynamic_lookup']
-        return ['-shared']
+        return self.linker.get_std_shared_module_link_args(options)
 
     def get_link_whole_for(self, args):
-        if self.compiler_type.is_osx_compiler:
-            result = []
-            for a in args:
-                result += ['-Wl,-force_load', a]
-            return result
-        return ['-Wl,--whole-archive'] + args + ['-Wl,--no-whole-archive']
+        return self.linker.get_link_whole_for(args)
 
     def get_instruction_set_args(self, instruction_set):
         return gnulike_instruction_set_args.get(instruction_set, None)
@@ -1516,14 +1505,7 @@ class GnuLikeCompiler(abc.ABC):
         return gnu_symbol_visibility_args[vistype]
 
     def gen_vs_module_defs_args(self, defsfile):
-        if not isinstance(defsfile, str):
-            raise RuntimeError('Module definitions file should be str')
-        # On Windows targets, .def files may be specified on the linker command
-        # line like an object file.
-        if self.compiler_type.is_windows_compiler:
-            return [defsfile]
-        # For other targets, discard the .def file.
-        return []
+        return self.linker.gen_vs_module_defs_args(defsfile)
 
     def get_argument_syntax(self):
         return 'gcc'
@@ -1646,6 +1628,7 @@ class ClangCompiler(GnuLikeCompiler):
             self.base_options.append('b_bitcode')
         # All Clang backends can also do LLVM IR
         self.can_compile_suffixes.add('ll')
+        self.linker = ClangLinker(self)
 
     def get_colorout_args(self, colortype):
         return clang_color_args[colortype][:]
