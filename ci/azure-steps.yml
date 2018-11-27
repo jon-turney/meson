@@ -58,7 +58,7 @@ steps:
        $env:Path = "C:\java\jdk\jdk1.8.0_102\bin\;$env:Path"
      }
 
-     # install boost (except for clang-cl)
+     # install boost (except for clang{,-cl})
      if ($env:arch -eq 'x86') { $boost_bitness = '32' } else { $boost_bitness = '64' }
      if ($env:compiler -eq 'msvc2015') {
        $boost_version = '1.60.0' ; $boost_abi_tag = '14.0'
@@ -114,17 +114,20 @@ steps:
      }
      Remove-Item $tempFile
 
-     if ($env:compiler -eq 'clang-cl') {
+     if ($env:compiler.StartsWith('clang')) {
        # drop visual studio from PATH
        # (but leave INCLUDE, LIB and WindowsSdkDir environment variables set)
        $env:Path = $origPath
 
-       # install llvm for clang-cl builds
+       # install llvm for clang{,-cl} builds
        DownloadFile -Source 'http://releases.llvm.org/7.0.0/LLVM-7.0.0-win64.exe' -Destination LLVM-7.0.0-win64.exe
        Start-Process .\LLVM-7.0.0-win64.exe -ArgumentList '/S' -Wait
        $env:Path = "C:\Program Files\LLVM\bin;$env:Path"
-       $env:CC = "clang-cl"
-       $env:CXX = "clang-cl"
+
+       if ($env:compiler -eq 'clang-cl') {
+         $env:CC = "clang-cl"
+         $env:CXX = "clang-cl"
+      }
 
        # and use Windows SDK tools
        $env:Path = "$env:WindowsSdkDir\bin\$env:Arch;$env:Path"
