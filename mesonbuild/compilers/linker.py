@@ -77,7 +77,7 @@ class VisualStudioLinker(Linker):
 
         # clang doesn't emit directives that clang-cl does ???
         if self.compiler.id == 'clang':
-            always += ['/defaultlib:libcmt']
+            always += ['/defaultlib:libcmt', '/defaultlib:oldnames']
 
         return always
 
