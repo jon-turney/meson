@@ -52,6 +52,14 @@ class Linker:
         "Always returns a copy that can be independently mutated"
         return args[:]
 
+    def gen_vs_module_defs_args(self, defsfile):
+        # On Windows targets, .def files may be specified on the linker command
+        # line like an object file.
+        if self.compiler.compiler_type.is_windows_compiler:
+            return [defsfile]
+        # For other targets, discard the .def file.
+        return []
+
 class VisualStudioLinker(Linker):
     def __init__(self, compiler):
         self.compiler = compiler
@@ -121,6 +129,10 @@ class VisualStudioLinker(Linker):
     def get_std_shared_module_link_args(self, options):
         return ['/DLL']
 
+    def gen_vs_module_defs_args(self, defsfile):
+        # With MSVC, DLLs only export symbols that are explicitly exported,
+        # so if a module defs file is specified, we use that to export symbols
+        return ['/DEF:' + defsfile]
 
 class ClangLinker(Linker):
     def __init__(self, compiler):

@@ -1495,12 +1495,7 @@ class GnuLikeCompiler(abc.ABC):
     def gen_vs_module_defs_args(self, defsfile):
         if not isinstance(defsfile, str):
             raise RuntimeError('Module definitions file should be str')
-        # On Windows targets, .def files may be specified on the linker command
-        # line like an object file.
-        if self.compiler_type.is_windows_compiler:
-            return [defsfile]
-        # For other targets, discard the .def file.
-        return []
+        return self.linker.gen_vs_module_defs_args(defsfile)
 
     def get_argument_syntax(self):
         return 'gcc'

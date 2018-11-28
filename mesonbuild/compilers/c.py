@@ -1389,9 +1389,7 @@ class VisualStudioCCompiler(CCompiler):
     def gen_vs_module_defs_args(self, defsfile):
         if not isinstance(defsfile, str):
             raise RuntimeError('Module definitions file should be str')
-        # With MSVC, DLLs only export symbols that are explicitly exported,
-        # so if a module defs file is specified, we use that to export symbols
-        return ['/DEF:' + defsfile]
+        return self.linker.gen_vs_module_defs_args(defsfile)
 
     def gen_pch_args(self, header, source, pchname):
         objname = os.path.splitext(pchname)[0] + '.obj'
