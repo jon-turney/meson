@@ -183,7 +183,7 @@ class CCompiler(Compiler):
         return ['-I' + path]
 
     def get_std_shared_lib_link_args(self):
-        return ['-shared']
+        return self.linker.get_std_shared_lib_link_args()
 
     @functools.lru_cache()
     def _get_search_dirs(self, env):
@@ -1384,7 +1384,7 @@ class VisualStudioCCompiler(CCompiler):
         return [] # Not applicable with MSVC
 
     def get_std_shared_lib_link_args(self):
-        return ['/DLL']
+        return self.linker.get_std_shared_lib_link_args()
 
     def gen_vs_module_defs_args(self, defsfile):
         if not isinstance(defsfile, str):

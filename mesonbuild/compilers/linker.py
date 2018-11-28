@@ -39,6 +39,15 @@ class Linker:
             return options['c_winlibs'].value[:]
         return []
 
+    def get_std_shared_lib_link_args(self):
+        return ['-shared']
+
+    def get_std_shared_module_link_args(self, options):
+        if self.compiler.compiler_type.is_osx_compiler:
+            return ['-bundle', '-Wl,-undefined,dynamic_lookup']
+        return ['-shared']
+
+
 class VisualStudioLinker(Linker):
     def __init__(self, compiler):
         self.compiler = compiler
@@ -71,6 +80,13 @@ class VisualStudioLinker(Linker):
 
     def get_option_link_args(self, options):
         return options['c_winlibs'].value[:]
+
+    def get_std_shared_lib_link_args(self):
+        return ['/DLL']
+
+    def get_std_shared_module_link_args(self, options):
+        return ['/DLL']
+
 
 class ClangLinker(Linker):
     def __init__(self, compiler):

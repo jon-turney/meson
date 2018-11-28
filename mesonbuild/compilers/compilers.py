@@ -1133,7 +1133,7 @@ class Compiler:
         return []
 
     def get_std_shared_module_link_args(self, options):
-        return self.get_std_shared_lib_link_args()
+        return self.linker.get_std_shared_module_link_args(options)
 
     def get_link_whole_for(self, args):
         if isinstance(args, list) and not args:
@@ -1468,12 +1468,10 @@ class GnuLikeCompiler(abc.ABC):
         return get_gcc_soname_args(self.compiler_type, *args)
 
     def get_std_shared_lib_link_args(self):
-        return ['-shared']
+        return self.linker.get_std_shared_lib_link_args()
 
     def get_std_shared_module_link_args(self, options):
-        if self.compiler_type.is_osx_compiler:
-            return ['-bundle', '-Wl,-undefined,dynamic_lookup']
-        return ['-shared']
+        return self.linker.get_std_shared_module_link_args(options)
 
     def get_link_whole_for(self, args):
         if self.compiler_type.is_osx_compiler:
