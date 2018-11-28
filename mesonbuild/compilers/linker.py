@@ -102,7 +102,10 @@ class VisualStudioLinker(Linker):
         return ['/IMPLIB:' + implibname]
 
     def get_option_link_args(self, options):
-        return options['c_winlibs'].value[:]
+        # ???
+        if self.compiler.id != 'clang':
+            return options['c_winlibs'].value[:]
+        return []
 
     def get_std_shared_lib_link_args(self):
         return ['/DLL']
