@@ -84,7 +84,13 @@ class VisualStudioLinker(Linker):
             return ['link']
 
     def get_linker_always_args(self):
-        return ['/nologo']
+        always = ['/nologo']
+
+        # clang doesn't emit directives that clang-cl does ???
+        if self.compiler.id == 'clang':
+            always += ['/defaultlib:libcmt', '/defaultlib:oldnames']
+
+        return always
 
     def get_linker_output_args(self, outputname):
         return ['/OUT:' + outputname]
