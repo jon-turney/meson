@@ -47,6 +47,10 @@ class Linker:
             return ['-bundle', '-Wl,-undefined,dynamic_lookup']
         return ['-shared']
 
+    @staticmethod
+    def unix_args_to_native(args):
+        "Always returns a copy that can be independently mutated"
+        return args[:]
 
 class VisualStudioLinker(Linker):
     def __init__(self, compiler):
@@ -83,6 +87,33 @@ class VisualStudioLinker(Linker):
 
     def get_std_shared_lib_link_args(self):
         return ['/DLL']
+
+    # XXX: needs splitting to deal with compiler and linker flags separately?
+    @staticmethod
+    def unix_args_to_native(args):
+        result = []
+        for i in args:
+            # -mms-bitfields is specific to MinGW-GCC
+            # -pthread is only valid for GCC
+            if i in ('-mms-bitfields', '-pthread'):
+                continue
+            if i.startswith('-L'):
+                i = '/LIBPATH:' + i[2:]
+            # Translate GNU-style -lfoo library name to the import library
+            elif i.startswith('-l'):
+                from .c import VisualStudioCCompiler
+                name = i[2:]
+                if name in VisualStudioCCompiler.ignore_libs:
+                    # With MSVC, these are provided by the C runtime which is
+                    # linked in by default
+                    continue
+                else:
+                    i = name + '.lib'
+            # -pthread in link flags is only used on Linux
+            elif i == '-pthread':
+                continue
+            result.append(i)
+        return result
 
     def get_std_shared_module_link_args(self, options):
         return ['/DLL']

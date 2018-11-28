@@ -62,10 +62,10 @@ class VisualStudioLinker(StaticLinker):
     def get_option_link_args(self, options):
         return []
 
-    @classmethod
-    def unix_args_to_native(cls, args):
-        from .compilers import VisualStudioCCompiler
-        return VisualStudioCCompiler.unix_args_to_native(args)
+    @staticmethod
+    def unix_args_to_native(args):
+        from .compilers.linker import VisualStudioLinker
+        return VisualStudioLinker.unix_args_to_native(args)
 
     def get_link_debugfile_args(self, targetfile):
         # Static libraries do not have PDB files
@@ -120,8 +120,8 @@ class ArLinker(StaticLinker):
     def get_option_link_args(self, options):
         return []
 
-    @classmethod
-    def unix_args_to_native(cls, args):
+    @staticmethod
+    def unix_args_to_native(args):
         return args[:]
 
     def get_link_debugfile_args(self, targetfile):
@@ -186,8 +186,8 @@ class DLinker(StaticLinker):
     def get_option_link_args(self, options):
         return []
 
-    @classmethod
-    def unix_args_to_native(cls, args):
+    @staticmethod
+    def unix_args_to_native(args):
         return args[:]
 
     def get_link_debugfile_args(self, targetfile):
@@ -237,8 +237,8 @@ class CcrxLinker(StaticLinker):
     def get_option_link_args(self, options):
         return []
 
-    @classmethod
-    def unix_args_to_native(cls, args):
+    @staticmethod
+    def unix_args_to_native(args):
         return args[:]
 
     def get_link_debugfile_args(self, targetfile):

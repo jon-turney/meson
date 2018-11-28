@@ -1420,30 +1420,8 @@ class VisualStudioCCompiler(CCompiler):
     def get_option_link_args(self, options):
         return self.linker.get_option_link_args(options)
 
-    @classmethod
-    def unix_args_to_native(cls, args):
-        result = []
-        for i in args:
-            # -mms-bitfields is specific to MinGW-GCC
-            # -pthread is only valid for GCC
-            if i in ('-mms-bitfields', '-pthread'):
-                continue
-            if i.startswith('-L'):
-                i = '/LIBPATH:' + i[2:]
-            # Translate GNU-style -lfoo library name to the import library
-            elif i.startswith('-l'):
-                name = i[2:]
-                if name in cls.ignore_libs:
-                    # With MSVC, these are provided by the C runtime which is
-                    # linked in by default
-                    continue
-                else:
-                    i = name + '.lib'
-            # -pthread in link flags is only used on Linux
-            elif i == '-pthread':
-                continue
-            result.append(i)
-        return result
+    def unix_args_to_native(self, args):
+        return self.linker.unix_args_to_native(args)
 
     def get_werror_args(self):
         return ['/WX']

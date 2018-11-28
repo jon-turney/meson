@@ -1005,10 +1005,8 @@ class Compiler:
     def has_function(self, *args, **kwargs):
         raise EnvironmentException('Language %s does not support function checks.' % self.get_display_language())
 
-    @classmethod
-    def unix_args_to_native(cls, args):
-        "Always returns a copy that can be independently mutated"
-        return args[:]
+    def unix_args_to_native(self, args):
+        return self.linker.unix_args_to_native(args)
 
     def find_library(self, *args, **kwargs):
         raise EnvironmentException('Language {} does not support library finding.'.format(self.get_display_language()))
