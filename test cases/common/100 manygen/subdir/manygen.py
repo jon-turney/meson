@@ -5,7 +5,7 @@ from __future__ import print_function
 # Generates a static library, object file, source
 # file and a header file.
 
-import sys, os
+import sys, os, platform
 import subprocess
 
 with open(sys.argv[1]) as f:
@@ -22,6 +22,7 @@ if not os.path.isdir(outdir):
 if compiler_type == 'msvc':
     libsuffix = '.lib'
     is_vs = True
+    is_vs_linker = True
     if any(['clang-cl' in c for c in compiler]):
         linker = 'llvm-lib'
     else:
@@ -29,7 +30,12 @@ if compiler_type == 'msvc':
 else:
     libsuffix = '.a'
     is_vs = False
-    linker = 'ar'
+    if any(['clang' in c for c in compiler]) and ('windows' in platform.system().lower()):
+        linker = 'llvm-lib'
+        is_vs_linker = True
+    else:
+        linker = 'ar'
+        is_vs_linker = False
 
 objsuffix = '.o'
 
@@ -74,9 +80,12 @@ with open(tmpc, 'w') as f:
 
 if is_vs:
     subprocess.check_call(compiler + ['/nologo', '/c', '/Fo' + tmpo, tmpc])
-    subprocess.check_call([linker, '/NOLOGO', '/OUT:' + outa, tmpo])
 else:
     subprocess.check_call(compiler + ['-c', '-o', tmpo, tmpc])
+
+if is_vs_linker:
+    subprocess.check_call([linker, '/NOLOGO', '/OUT:' + outa, tmpo])
+else:
     subprocess.check_call([linker, 'csr', outa, tmpo])
 
 os.unlink(tmpo)
