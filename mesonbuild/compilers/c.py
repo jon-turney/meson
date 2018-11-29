@@ -1462,9 +1462,7 @@ class VisualStudioCCompiler(CCompiler):
         return ['/DEBUG', '/PDB:' + '.'.join(pdbarr)]
 
     def get_link_whole_for(self, args):
-        # Only since VS2015
-        args = listify(args)
-        return ['/WHOLEARCHIVE:' + x for x in args]
+        return self.linker.get_link_whole_for(args)
 
     def get_instruction_set_args(self, instruction_set):
         if self.is_64:

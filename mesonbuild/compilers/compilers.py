@@ -1472,12 +1472,7 @@ class GnuLikeCompiler(abc.ABC):
         return self.linker.get_std_shared_module_link_args(options)
 
     def get_link_whole_for(self, args):
-        if self.compiler_type.is_osx_compiler:
-            result = []
-            for a in args:
-                result += ['-Wl,-force_load', a]
-            return result
-        return ['-Wl,--whole-archive'] + args + ['-Wl,--no-whole-archive']
+        return self.linker.get_link_whole_for(args)
 
     def get_instruction_set_args(self, instruction_set):
         return gnulike_instruction_set_args.get(instruction_set, None)

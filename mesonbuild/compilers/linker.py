@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from ..mesonlib import listify
+
+# GnuLikeLinker
 class Linker:
     def __init__(self, compiler):
         self.compiler = compiler
@@ -59,6 +62,14 @@ class Linker:
             return [defsfile]
         # For other targets, discard the .def file.
         return []
+
+    def get_link_whole_for(self, args):
+        if self.compiler.compiler_type.is_osx_compiler:
+            result = []
+            for a in args:
+                result += ['-Wl,-force_load', a]
+            return result
+        return ['-Wl,--whole-archive'] + args + ['-Wl,--no-whole-archive']
 
 class VisualStudioLinker(Linker):
     def __init__(self, compiler):
@@ -133,6 +144,11 @@ class VisualStudioLinker(Linker):
         # With MSVC, DLLs only export symbols that are explicitly exported,
         # so if a module defs file is specified, we use that to export symbols
         return ['/DEF:' + defsfile]
+
+    def get_link_whole_for(self, args):
+        # Only since VS2015
+        args = listify(args)
+        return ['/WHOLEARCHIVE:' + x for x in args]
 
 class ClangLinker(Linker):
     def __init__(self, compiler):
