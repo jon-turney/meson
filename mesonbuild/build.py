@@ -1191,6 +1191,8 @@ You probably should put it in link_with instead.''')
         # Mixing many languages with MSVC is not supported yet so ignore stdlibs.
         if linker and linker.get_id() in ['msvc', 'clang-cl', 'llvm', 'dmd']:
             return True
+        if linker and linker.get_id() == 'clang' and linker.target.endswith('windows-msvc'):
+            return True
         return False
 
     def check_module_linking(self):
