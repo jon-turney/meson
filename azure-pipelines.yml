@@ -142,7 +142,7 @@ jobs:
         set PATH=%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem
         %MSYS2_ROOT%\usr\bin\bash -lc "wget https://github.com/mesonbuild/cidata/raw/master/ninja.exe; mv ninja.exe /$MSYSTEM/bin"
         set PATHEXT=%PATHEXT%;.py
-        if %compiler%==clang ( set CC=clang && set CXX=clang )
+        if %compiler%==clang ( set CC=clang && set CXX=clang++ )
         %MSYS2_ROOT%\usr\bin\bash -lc "MSYSTEM= python3 run_tests.py --backend=ninja"
       env:
         CHERE_INVOKING: yes
