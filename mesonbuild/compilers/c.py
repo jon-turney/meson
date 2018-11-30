@@ -1126,11 +1126,10 @@ class ClangCCompiler(ClangCompiler, CCompiler):
                                                         'gnu89', 'gnu99', 'gnu11'],
                                                        'none')})
 
-        # XXX: msvc or gnu style ???
         if self.compiler_type.is_windows_compiler:
             opts.update({'c_winlibs': coredata.UserArrayOption('c_winlibs',
                                                                'Windows libs to link against.',
-                                                               msvc_winlibs)})
+                                                               gnu_winlibs)})
 
         return opts
 
