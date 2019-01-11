@@ -2664,7 +2664,9 @@ recommended as it is not supported on some platforms''')
         testdirlib = os.path.join(testdirbase, 'lib')
         extra_args = None
         env = get_fake_env(testdirlib, self.builddir, self.prefix)
-        if env.detect_c_compiler(False).get_id() not in ['msvc', 'clang-cl']:
+        cc = env.detect_c_compiler(False)
+        if ((cc.get_id() not in ['msvc', 'clang-cl']) and (cc.compiler_type !=
+                                                            mesonbuild.compilers.CompilerType.CLANG_WINDOWS)):
             # static libraries are not linkable with -l with msvc because meson installs them
             # as .a files which unix_args_to_native will not know as it expects libraries to use
             # .lib as extension. For a DLL the import library is installed as .lib. Thus for msvc
