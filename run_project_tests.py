@@ -26,6 +26,7 @@ from enum import Enum
 import tempfile
 from pathlib import Path, PurePath
 from mesonbuild import build
+from mesonbuild import compilers
 from mesonbuild import environment
 from mesonbuild import mesonlib
 from mesonbuild import mlog
@@ -117,9 +118,15 @@ def get_relative_files_list_from_dir(fromdir):
             paths.append(path)
     return paths
 
-def platform_fix_name(fname, compiler, env):
+def platform_fix_name(fname, cc, env):
+    compiler = None
+    is_msvc_clang = False
+    if cc:
+        compiler = cc.get_id()
+        is_msvc_clang = getattr(cc, 'compiler_type', None) == compilers.CompilerType.CLANG_WINDOWS
+
     # canonicalize compiler
-    if compiler == 'clang-cl':
+    if (compiler == 'clang-cl') or is_msvc_clang:
         canonical_compiler = 'msvc'
     else:
         canonical_compiler = compiler
@@ -147,6 +154,8 @@ def platform_fix_name(fname, compiler, env):
 
     if fname.startswith('?msvc:'):
         fname = fname[6:]
+        if fname.endswith('.pdb') and is_msvc_clang:
+            return None
         if canonical_compiler != 'msvc':
             return None
 
@@ -740,7 +749,7 @@ def detect_system_compiler():
             comp = env.detect_c_compiler(env.is_cross_build())
         except:
             raise RuntimeError("Could not find C compiler.")
-        system_compiler = comp.get_id()
+        system_compiler = comp
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run the test suite of Meson.")
