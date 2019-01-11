@@ -23,7 +23,7 @@ from ..mesonlib import (
     EnvironmentException, MesonException, OrderedSet, version_compare,
     Popen_safe
 )
-from .linker import Linker, ClangLinker
+from .linker import Linker, ClangLinker, VisualStudioLinker
 
 """This file contains the data files of all compilers Meson knows
 about. To support a new compiler, add its information below.
@@ -1628,8 +1628,12 @@ class ClangCompiler(GnuLikeCompiler):
             self.base_options.append('b_bitcode')
         # All Clang backends can also do LLVM IR
         self.can_compile_suffixes.add('ll')
-        self.linker = ClangLinker(self)
         self.target = target
+
+        if self.target.endswith('windows-msvc'):
+            self.linker = VisualStudioLinker(self)
+        else:
+            self.linker = ClangLinker(self)
 
     def get_colorout_args(self, colortype):
         return clang_color_args[colortype][:]
