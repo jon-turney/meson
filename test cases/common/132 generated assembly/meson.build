@@ -25,7 +25,7 @@ copygen = generator(copy,
   arguments : ['@INPUT@', '@OUTPUT@'],
   output : '@BASENAME@')
 
-l = shared_library('square-gen', copygen.process(input))
+l = static_library('square-gen', copygen.process(input))
 
 test('square-gen-test', executable('square-gen-test', 'main.c', link_with : l))
 
@@ -34,6 +34,6 @@ copyct = custom_target('square',
   output : output,
   command : [copy, '@INPUT@', '@OUTPUT@'])
 
-l = shared_library('square-ct', copyct)
+l = static_library('square-ct', copyct)
 
 test('square-ct-test', executable('square-ct-test', 'main.c', link_with : l))
