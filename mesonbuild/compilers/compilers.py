@@ -1528,9 +1528,7 @@ class GnuLikeCompiler(abc.ABC):
             return ['-Wl,--allow-shlib-undefined']
 
     def get_gui_app_args(self, value):
-        if self.compiler_type.is_windows_compiler and value:
-            return ['-mwindows']
-        return []
+        return self.linker.get_gui_app_args(value)
 
     def compute_parameters_with_absolute_paths(self, parameter_list, build_dir):
         for idx, i in enumerate(parameter_list):

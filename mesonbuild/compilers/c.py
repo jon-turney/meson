@@ -1376,12 +1376,7 @@ class VisualStudioCCompiler(CCompiler):
         return ['/link'] + args
 
     def get_gui_app_args(self, value):
-        # the default is for the linker to guess the subsystem based on presence
-        # of main or WinMain symbols, so always be explicit
-        if value:
-            return ['/SUBSYSTEM:WINDOWS']
-        else:
-            return ['/SUBSYSTEM:CONSOLE']
+        return self.linker.get_gui_app_args(value)
 
     def get_pic_args(self):
         return [] # PIC is handled by the loader on Windows

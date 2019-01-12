@@ -71,6 +71,11 @@ class Linker:
             return result
         return ['-Wl,--whole-archive'] + args + ['-Wl,--no-whole-archive']
 
+    def get_gui_app_args(self, value):
+        if self.compiler.compiler_type.is_windows_compiler and value:
+            return ['-mwindows']
+        return []
+
 class VisualStudioLinker(Linker):
     def __init__(self, compiler):
         self.compiler = compiler
@@ -149,6 +154,14 @@ class VisualStudioLinker(Linker):
         # Only since VS2015
         args = listify(args)
         return ['/WHOLEARCHIVE:' + x for x in args]
+
+    def get_gui_app_args(self, value):
+        # the default is for the linker to guess the subsystem based on presence
+        # of main or WinMain symbols, so always be explicit
+        if value:
+            return ['/SUBSYSTEM:WINDOWS']
+        else:
+            return ['/SUBSYSTEM:CONSOLE']
 
 class ClangLinker(Linker):
     def __init__(self, compiler):
