@@ -41,7 +41,11 @@ else
     picflag = ['-fPIC']
   endif
   compile_cmd = ['-c', picflag, '@INPUT@', '-o', '@OUTPUT@']
-  stlib_cmd = ['ar', 'csr', '@OUTPUT@', '@INPUT@']
+  if cxx.get_id() == 'clang' and host_machine.system() == 'windows'
+    stlib_cmd = ['llvm-lib', '/OUT:@OUTPUT@', '@INPUT@']
+  else
+    stlib_cmd = ['ar', 'csr', '@OUTPUT@', '@INPUT@']
+  endif
 endif
 
 foo_cpp_o = configure_file(
