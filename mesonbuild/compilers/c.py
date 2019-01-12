@@ -1133,14 +1133,9 @@ class ClangCCompiler(ClangCompiler, CCompiler):
                                                        'none')})
 
         if self.compiler_type.is_windows_compiler:
-            # XXX: make this a Linker object method
-            if isinstance(self.linker, VisualStudioLinker):
-                winlibs = msvc_winlibs
-            else:
-                winlibs = gnu_winlibs
             opts.update({'c_winlibs': coredata.UserArrayOption('c_winlibs',
                                                                'Windows libs to link against.',
-                                                               winlibs)})
+                                                               gnu_winlibs)})
 
         return opts
 
