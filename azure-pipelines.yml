@@ -73,7 +73,7 @@ jobs:
         libglib2.0-devel,^
         libgtk3-devel,^
         ninja,^
-        python3-pip,^
+        python35-pip,^
         vala,^
         zlib-devel
       displayName: Install Dependencies
