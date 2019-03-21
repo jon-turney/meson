@@ -19,11 +19,25 @@ test('MPI C', exec)
 if build_machine.system() != 'windows'
   # C++ MPI not supported by MS-MPI
   mpicpp = dependency('mpi', language : 'cpp')
-  execpp = executable('execpp',
-    'main.cpp',
-    dependencies : [mpicpp])
+  if meson.get_compiler('cpp').compiles('''
+#include <mpi.h>
 
-  test('MPI C++', execpp)
+int main(int argc, char **argv)
+{
+    MPI::Init(argc, argv);
+}
+''', dependencies: mpicpp)
+    # MPI C++ bindings are deprecated
+    #
+    # if OpenMPI was built without --enable-mpi-cxx, the C++ bindings won't be
+    # present (see https://github.com/open-mpi/ompi/issues/3173)
+
+    execpp = executable('execpp',
+      'main.cpp',
+      dependencies : [mpicpp])
+
+    test('MPI C++', execpp)
+  endif
 endif
 
 # OpenMPI is broken with Fortran on Ubuntu Artful.
