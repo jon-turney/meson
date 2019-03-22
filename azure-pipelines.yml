@@ -80,6 +80,7 @@ jobs:
         libboost-devel,^
         libglib2.0-devel,^
         libgtk3-devel,^
+        libopenmpi-devel,^
         ninja,^
         python35-pip,^
         vala,^
