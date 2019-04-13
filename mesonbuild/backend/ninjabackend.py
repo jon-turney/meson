@@ -38,8 +38,14 @@ from ..build import InvalidArguments
 
 FORTRAN_SUBMOD_PAT = r"\s*submodule\s*\((\w+:?\w+)\)\s*(\w+)\s*$"
 
+def cmd_quote(s):
+    # XXX: this needs to understand how to escape any existing double quotes(")
+    return '"{}"'.format(s)
+
+# How ninja executes command lines differs between Unix and Windows
+# (see https://ninja-build.org/manual.html#ref_rule_command)
 if mesonlib.is_windows():
-    quote_func = lambda s: '"{}"'.format(s)
+    quote_func = cmd_quote
     execute_wrapper = ['cmd', '/c']
     rmfile_prefix = ['del', '/f', '/s', '/q', '{}', '&&']
 else:
@@ -76,7 +82,8 @@ class NinjaComment:
 
 class NinjaRule:
     def __init__(self, rule, command, args, description,
-                 rspable = False, deps = None, depfile = None, extra = None):
+                 rspable = False, deps = None, depfile = None, extra = None,
+                 rspfile_quote_style = 'sh'):
         self.name = rule
         self.command = command  # includes args which never go into a rspfile
         self.args = args  # args which will go into a rspfile, if used
@@ -86,6 +93,7 @@ class NinjaRule:
         self.extra = extra
         self.rspable = rspable  # if a rspfile can be used
         self.refcount = 0
+        self.rspfile_quote_style = rspfile_quote_style  # rspfile quoting style is 'sh' or 'cl'
 
     def write(self, outfile):
         if not self.refcount:
@@ -168,6 +176,16 @@ class NinjaBuildElement:
         # ninja will read from, etc.), so it must not be shell quoted.
         raw_names = {'DEPFILE', 'DESC', 'pool', 'description'}
 
+        if self.rulename != 'phony' and self.rule.rspable:
+            # If we're using a rspfile, quoting style depends on the compiler
+            if self.rule.rspfile_quote_style == 'cl':
+                qf = cmd_quote
+            else:
+                qf = shlex.quote
+        else:
+            # Otherwise, quoting style depends on the shell
+            qf = quote_func
+
         for e in self.elems:
             (name, elems) = e
             should_quote = name not in raw_names
@@ -177,9 +195,9 @@ class NinjaBuildElement:
                 if not should_quote or i == '&&': # Hackety hack hack
                     quoter = ninja_quote
                 else:
-                    quoter = lambda x: ninja_quote(quote_func(x))
+                    quoter = lambda x: ninja_quote(qf(x))
                 i = i.replace('\\', '\\\\')
-                if quote_func('') == '""':
+                if qf('') == '""':
                     i = i.replace('"', '\\"')
                 newelems.append(quoter(i))
             line += ' '.join(newelems)
@@ -1684,6 +1702,7 @@ https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47485'''))
             depfile = '$DEPFILE'
         self.add_rule(NinjaRule(rule, command, args, description,
                                 rspable=compiler.can_linker_accept_rsp(),
+                                rspfile_quote_style='cl' if compiler.get_argument_syntax() == 'msvc' else 'sh',
                                 deps=deps, depfile=depfile))
 
     def generate_pch_rule_for(self, langname, compiler, is_cross):

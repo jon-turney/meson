@@ -559,12 +559,7 @@ class Backend:
                         arg = arg[:-2] + '\\\\"'
                 extra_args.append(arg)
         else:
-            # MinGW GCC needs all backslashes in defines to be doubly-escaped
-            # FIXME: Not sure about Cygwin or Clang
-            for arg in args:
-                if arg.startswith('-D') or arg.startswith('/D'):
-                    arg = arg.replace('\\', '\\\\')
-                extra_args.append(arg)
+            extra_args = args
         return extra_args
 
     def generate_basic_compiler_args(self, target, compiler, no_warn_args=False):
