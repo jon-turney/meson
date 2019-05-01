@@ -540,10 +540,6 @@ class Backend:
         mesonlib.replace_if_different(pch_file, pch_file_tmp)
         return pch_rel_to_build
 
-    @staticmethod
-    def escape_extra_args(compiler, args):
-        return args
-
     def generate_basic_compiler_args(self, target, compiler, no_warn_args=False):
         # Create an empty commands list, and start adding arguments from
         # various sources in the order in which they must override each other
