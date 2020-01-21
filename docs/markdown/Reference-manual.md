@@ -1309,11 +1309,7 @@ My Project 1.0
 ```
 
 The first argument to this function must be a string defining the name
-of this project. It is followed by programming languages that the
-project uses. Supported values for languages are `c`, `cpp` (for
-`C++`), `cuda`, `d`, `objc`, `objcpp`, `fortran`, `java`, `cs` (for `C#`),
-`vala` and `rust`. Since version `0.40.0` the list of languages
-is optional.
+of this project.
 
 The project name can be any string you want, it's not used for
 anything except descriptive purposes. However since it is written to
@@ -1322,7 +1318,18 @@ same as the project tarball or pkg-config name. So for example you
 would probably want to use the name _libfoobar_ instead of _The Foobar
 Library_.
 
+It may be followed by the list of programming languages that the project uses.
+Since version `0.40.0` the list of languages is optional.
+
 Project supports the following keyword arguments.
+
+ - `native_languages` takes a string or array of strings listing the languages
+   that the project uses for `native: true` (build machine) targets.  When
+   present, the languages listed as positional arguments may only be used for
+   `native: false` (the default) (host machine) targets.  If omitted, the
+   languages listed as positional arguments may be used for both host and build
+   machine compilations.  *Since 0.54.0*. The default may change to specifying
+   no languages for build machine targets in a future meson version.
 
  - `default_options` takes an array of strings. The strings are in the
    form `key=value` and have the same format as options to
@@ -1333,6 +1340,9 @@ Project supports the following keyword arguments.
    the master project, settings in subprojects are ignored. Project
    specific options are used normally even in subprojects.
 
+ - `languages` takes a string or array of strings listing the languages that the
+   project uses for `native: false` (host machine) targets (the default).  If
+   present, there must be no language positional arguments. *Since 0.54.0*.
 
   - `license` takes a string or array of strings describing the
     license(s) the code is under. Usually this would be something like
@@ -1358,6 +1368,9 @@ Project supports the following keyword arguments.
  - `version`, which is a free form string describing the version of
    this project. You can access the value in your Meson build files
    with `meson.project_version()`.
+
+Supported values for languages are `c`, `cpp` (for `C++`), `cuda`, `d`,
+`objc`, `objcpp`, `fortran`, `java`, `cs` (for `C#`), `vala` and `rust`.
 
 ### run_command()
 

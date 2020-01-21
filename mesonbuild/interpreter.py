@@ -2270,7 +2270,13 @@ permitted_kwargs = {'add_global_arguments': {'language', 'native'},
                     'install_man': {'install_dir', 'install_mode'},
                     'install_subdir': {'exclude_files', 'exclude_directories', 'install_dir', 'install_mode', 'strip_directory'},
                     'jar': build.known_jar_kwargs,
-                    'project': {'version', 'meson_version', 'default_options', 'license', 'subproject_dir'},
+                    'project': {'default_options',
+                                'languages',
+                                'license',
+                                'meson_version',
+                                'native_languages',
+                                'subproject_dir',
+                                'version'},
                     'run_command': {'check', 'capture', 'env'},
                     'run_target': {'command', 'depends'},
                     'shared_library': build.known_shlib_kwargs,
@@ -2965,6 +2971,7 @@ external dependencies (including libraries) must go to "dependencies".''')
 
     @stringArgs
     @permittedKwargs(permitted_kwargs['project'])
+    @FeatureNewKwargs('project', '0.54.0', ['languages', 'native_languages'])
     def func_project(self, node, args, kwargs):
         if len(args) < 1:
             raise InvalidArguments('Not enough arguments to project(). Needs at least the project name.')
@@ -3030,8 +3037,19 @@ external dependencies (including libraries) must go to "dependencies".''')
         self.build.projects[self.subproject] = proj_name
         mlog.log('Project name:', mlog.bold(proj_name))
         mlog.log('Project version:', mlog.bold(self.project_version))
-        self.add_languages(proj_langs, True, MachineChoice.BUILD)
-        self.add_languages(proj_langs, True, MachineChoice.HOST)
+
+        if 'languages' in kwargs:
+            if len(proj_langs) > 0:
+                raise InterpreterException('project() may not have both language positional arguments and languages:.')
+            self.add_languages(mesonlib.stringlistify(kwargs.get('languages', [])), True, MachineChoice.HOST)
+        else:
+            self.add_languages(proj_langs, True, MachineChoice.HOST)
+
+        if 'native_languages' in kwargs:
+            self.add_languages(mesonlib.stringlistify(kwargs.get('native_languages', [])), True, MachineChoice.BUILD)
+        else:
+            self.add_languages(proj_langs, True, MachineChoice.BUILD)
+
         self.set_backend()
         if not self.is_subproject():
             self.check_stdlibs()
