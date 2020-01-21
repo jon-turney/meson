@@ -335,6 +335,55 @@ def run_ci_commands(raw_log: str) -> T.List[str]:
         res += ['CI COMMAND {}:\n{}\n'.format(cmd[0], ci_commands[cmd[0]](cmd[1:]))]
     return res
 
+def _compare_output(srcdir: Path, expected_file: str, output: str, desc: str) -> str:
+    file = srcdir / expected_file
+    if file.is_file():
+        i = iter(file.open().readlines())
+
+        def next_expected(i):
+            # Get the next non-comment line from expected_file
+            while True:
+                expected = next(i).rstrip('\n')
+                if expected[0] != '#':
+                    break
+
+            # Simple heuristic to automatically convert path separators:
+            #
+            # Any '/' appearing before 'WARNING' or 'ERROR' (i.e. a path in a
+            # filename part of a location) is replaced with '\' (in a re: '\\'
+            # which matches a literal '\')
+            #
+            # (There should probably be a way to turn this off for more complex
+            # cases which don't fit this)
+            if mesonlib.is_windows():
+                if expected[0:3] != "re:":
+                    sub = r'\\'
+                else:
+                    sub = r'\\\\'
+                expected = re.sub(r'/(?=.*(WARNING|ERROR))', sub, expected)
+
+            return expected
+
+        try:
+            expected = next_expected(i)
+            for actual in output.splitlines():
+                if expected[0:3] == "re:":
+                    match = bool(re.match(expected[3:], actual))
+                else:
+                    match = (expected == actual)
+                if match:
+                    expected = next_expected(i)
+
+            # reached the end of output without finding expected
+            return 'expected "{}" not found in {}'.format(expected, desc)
+        except StopIteration:
+            # matched all expected lines
+            pass
+
+    return ''
+
+def validate_output(srcdir: Path, stdo: str, stde: str) -> str:
+    return _compare_output(srcdir, 'expected_stdout.txt', stdo, 'stdout')
 
 def run_test_inprocess(testdir):
     old_stdout = sys.stdout
@@ -404,6 +453,11 @@ def _run_test(test: TestDef, test_build_dir: str, install_dir: str, extra_args, 
     cicmds = run_ci_commands(mesonlog)
     testresult = TestResult(cicmds)
     testresult.add_step(BuildStep.configure, stdo, stde, mesonlog, time.time() - gen_start)
+    output_msg = validate_output(test.path, stdo, stde)
+    testresult.mlog += output_msg
+    if output_msg:
+        testresult.fail('Unexpected output while configuring.')
+        return testresult
     if should_fail == 'meson':
         if returncode == 1:
             return testresult
