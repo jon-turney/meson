@@ -1,0 +1,7 @@
+{
+  "stdout": [
+    {
+      "line": "test cases/failing/110 project positional and languages/meson.build:1:0: ERROR: project() may not have both language positional arguments and languages:."
+    }
+  ]
+}

@@ -130,6 +130,10 @@ class IntrospectionInterpreter(AstInterpreter):
         self.coredata.set_options(options)
         self._add_languages(proj_langs, MachineChoice.HOST)
         self._add_languages(proj_langs, MachineChoice.BUILD)
+        for kw, for_machine in [('languages', MachineChoice.HOST),
+                                ('native_languages', MachineChoice.BUILD)]:
+            if kw in kwargs:
+                self._add_languages([kwargs.get(kw)], for_machine)
 
     def do_subproject(self, dirname: str) -> None:
         subproject_dir_abs = os.path.join(self.environment.get_source_dir(), self.subproject_dir)

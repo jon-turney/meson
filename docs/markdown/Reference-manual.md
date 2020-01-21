@@ -1344,6 +1344,10 @@ Project supports the following keyword arguments.
   the master project, settings in subprojects are ignored. Project
   specific options are used normally even in subprojects.
 
+- `languages`: *(since 0.56.0)* takes a string or array of strings listing the
+   languages that the project uses for `native: false` (the default) (host
+   machine) targets.  If present, there must be no language positional
+   arguments.
 
 - `license`: takes a string or array of strings describing the
   license(s) the code is under. Usually this would be something like
@@ -1354,6 +1358,11 @@ Project supports the following keyword arguments.
   you are responsible for verifying that you abide by all licensing
   terms. You can access the value in your Meson build files with
   `meson.project_license()`.
+
+- `native_languages`: *(since 0.56.0)* takes a string or array of strings
+   listing the languages that the project uses for `native: true` (build
+   machine) targets.  When present, the languages listed as positional arguments
+   may only be used for `native: false` (the default) (host machine) targets.
 
 - `meson_version`: takes a string describing which Meson version the
   project requires. Usually something like `>=0.28.0`.
