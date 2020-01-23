@@ -49,7 +49,7 @@ from run_tests import get_backend_commands, get_backend_args_for_dir, Backend
 from run_tests import ensure_backend_detects_changes
 from run_tests import guess_backend
 
-ALL_TESTS = ['cmake', 'common', 'warning-meson', 'failing-meson', 'failing-build', 'failing-test',
+ALL_TESTS = ['cmake', 'common', 'native', 'warning-meson', 'failing-meson', 'failing-build', 'failing-test',
              'kconfig', 'platform-osx', 'platform-windows', 'platform-linux',
              'java', 'C#', 'vala',  'rust', 'd', 'objective c', 'objective c++',
              'fortran', 'swift', 'cuda', 'python3', 'python', 'fpga', 'frameworks', 'nasm', 'wasm'
@@ -841,6 +841,7 @@ def detect_tests_to_run(only: T.List[str], use_tmp: bool) -> T.List[T.Tuple[str,
     all_tests = [
         ('cmake', 'cmake', not shutil.which('cmake') or (os.environ.get('compiler') == 'msvc2015' and under_ci)),
         ('common', 'common', False),
+        ('native', 'native', False),
         ('warning-meson', 'warning', False),
         ('failing-meson', 'failing', False),
         ('failing-build', 'failing build', False),

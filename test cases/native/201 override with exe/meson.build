@@ -1,4 +1,4 @@
-project('myexe', 'c')
+project('myexe', languages: 'c')
 sub = subproject('sub')
 
 prog = find_program('foobar', version : '>= 2.0', required : false)
