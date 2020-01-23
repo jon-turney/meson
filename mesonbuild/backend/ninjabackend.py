@@ -897,8 +897,10 @@ int dummy;
         self.build_elements.append(build)
 
         # increment rule refcount
-        if build.rule != 'phony':
+        if build.rule in self.ruledict:
             self.ruledict[build.rule].refcount += 1
+        elif build.rule != 'phony':
+            mlog.warning("build statement for {} references non-existent rule {}".format(build.outfilenames, build.rule))
 
     def write_rules(self, outfile):
         for r in self.rules:
@@ -1538,7 +1540,7 @@ int dummy;
         for for_machine in MachineChoice:
             static_linker = self.build.static_linker[for_machine]
             if static_linker is None:
-                return
+                continue
             rule = 'STATIC_LINKER{}'.format(self.get_rule_suffix(for_machine))
             cmdlist = []
             args = ['$in']
