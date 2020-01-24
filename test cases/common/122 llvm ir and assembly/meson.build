@@ -1,7 +1,7 @@
 project('llvm-ir', 'c', 'cpp')
 
 cpu = host_machine.cpu_family()
-supported_cpus = ['arm', 'x86', 'x86_64']
+supported_cpus = ['arm', 'aarch64', 'x86', 'x86_64']
 
 foreach lang : ['c', 'cpp']
   cc = meson.get_compiler(lang)
@@ -34,6 +34,9 @@ foreach lang : ['c', 'cpp']
       ml = find_program('ml', required: false)
     elif cpu == 'x86_64'
       ml = find_program('ml64', required: false)
+    elif cpu == 'aarch64'
+      # XXX: no idea what assembler we should use here
+      error('MESON_SKIP_TEST: test not suported on aarch64')
     else
       error('Unsupported cpu family: "' + cpu + '"')
     endif
