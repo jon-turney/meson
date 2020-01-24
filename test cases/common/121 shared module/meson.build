@@ -1,5 +1,14 @@
 project('shared module', 'c')
 
+# Windows on ARM doesn't appear to support the toolhelp API we use to emulate
+# runtime symbol resolution in this test.
+#
+# XXX: This should be written as a check if the macro
+# WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP) evaluates to true?
+if host_machine.system() == 'windows' and ['aarch64', 'arm'].contains(host_machine.cpu_family())
+  error('MESON_SKIP_TEST windows on ARM does not support this test.')
+endif
+
 dl = meson.get_compiler('c').find_library('dl', required : false)
 l = shared_library('runtime', 'runtime.c')
 # Do NOT link the module with the runtime library. This
