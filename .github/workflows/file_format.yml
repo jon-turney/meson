@@ -1,0 +1,17 @@
+name: File Formatting Test
+
+# this workflow does some simple checks on the file format of code samples in tests:
+# - no use of tabs
+# - no use of DOS line endings
+
+on: [push, pull_request]
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - run: python3 ./run_code_tests.py
