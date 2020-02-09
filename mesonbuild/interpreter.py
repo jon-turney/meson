@@ -3048,7 +3048,7 @@ external dependencies (including libraries) must go to "dependencies".''')
         if 'native_languages' in kwargs:
             self.add_languages(mesonlib.stringlistify(kwargs.get('native_languages', [])), True, MachineChoice.BUILD)
         else:
-            self.add_languages(proj_langs, True, MachineChoice.BUILD)
+            self.add_languages(proj_langs, False, MachineChoice.BUILD)
 
         self.set_backend()
         if not self.is_subproject():
