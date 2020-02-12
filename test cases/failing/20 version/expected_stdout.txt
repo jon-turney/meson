@@ -1,0 +1,1 @@
+re:test cases/failing/20 version/meson\.build:1:0: ERROR: Meson version is .* but project requires >100\.0\.0

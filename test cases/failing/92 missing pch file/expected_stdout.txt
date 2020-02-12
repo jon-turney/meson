@@ -1,0 +1,2 @@
+# literal 'pch/prog.h' from meson.build appears in output, irrespective of os.path.sep
+test cases/failing/92 missing pch file/meson.build:2:0: ERROR: File pch/prog.h does not exist.

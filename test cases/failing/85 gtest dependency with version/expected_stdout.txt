@@ -1,0 +1,1 @@
+test cases/failing/85 gtest dependency with version/meson.build:8:0: ERROR: Unknown version of dependency 'gtest', but need ['>0'].

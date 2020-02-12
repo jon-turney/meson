@@ -1,0 +1,1 @@
+re:test cases/failing/34 dependency not\-required then required/meson\.build:4:0: ERROR: Dependency "foo\-bar\-xyz\-12\.3" not found, tried .*

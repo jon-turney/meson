@@ -1,0 +1,1 @@
+test cases/failing/59 assign custom target index/meson.build:24:0: ERROR: Assignment target must be an id.

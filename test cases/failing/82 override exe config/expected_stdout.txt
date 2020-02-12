@@ -1,0 +1,1 @@
+test cases/failing/82 override exe config/meson.build:6:0: ERROR: Program 'bar' was overridden with the compiled executable 'foo' and therefore cannot be used during configuration

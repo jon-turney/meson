@@ -1,0 +1,1 @@
+re:test cases/failing/36 pkgconfig dependency impossible conditions/meson\.build:7:0: ERROR: Invalid version of dependency, need 'zlib' \['<1\.0'\] found '.*'\.

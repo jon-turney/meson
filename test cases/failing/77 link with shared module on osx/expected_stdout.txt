@@ -1,0 +1,1 @@
+test cases/failing/77 link with shared module on osx/meson.build:8:0: ERROR: target links against shared modules.

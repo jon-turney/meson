@@ -1,0 +1,2 @@
+# this error message is not very informative
+test cases/failing/75 int literal leading zero/meson.build:5:13: ERROR: Expecting eof got number.

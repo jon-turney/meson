@@ -1,0 +1,1 @@
+test cases/failing/87 dub executable/meson.build:11:0: ERROR: Dependency "dubtestproject:test1" not found

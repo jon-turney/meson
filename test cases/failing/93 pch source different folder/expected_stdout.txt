@@ -1,0 +1,1 @@
+test cases/failing/93 pch source different folder/meson.build:4:0: ERROR: PCH files must be stored in the same folder.

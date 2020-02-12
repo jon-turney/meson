@@ -1,0 +1,1 @@
+test cases/failing/79 subproj dependency not-found and required/meson.build:2:0: ERROR: Subproject directory not found and missing.wrap file not found

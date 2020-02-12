@@ -1,0 +1,1 @@
+test cases/failing/84 threads dependency with version/meson.build:3:0: ERROR: Unknown version of dependency 'threads', but need ['>0'].

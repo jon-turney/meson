@@ -1,0 +1,1 @@
+test cases/failing/25 badlang/meson.build:3:0: ERROR: Tried to use unknown language "nonexisting".

@@ -1,0 +1,1 @@
+re:test cases/failing/11 object arithmetic/meson\.build:3:0: ERROR: Invalid use of addition: .*

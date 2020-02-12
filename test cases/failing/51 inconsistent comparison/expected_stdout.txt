@@ -1,0 +1,1 @@
+test cases/failing/51 inconsistent comparison/meson.build:5:0: ERROR: Values of different types (list, str) cannot be compared using <.

@@ -1,0 +1,1 @@
+test cases/failing/94 vala without c/meson.build:2:0: ERROR: Compiling Vala requires C. Add C to your project languages and rerun Meson.

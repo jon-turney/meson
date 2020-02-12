@@ -1,0 +1,1 @@
+ERROR: First statement must be a call to project

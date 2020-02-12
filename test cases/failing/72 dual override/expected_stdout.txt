@@ -1,0 +1,1 @@
+test cases/failing/72 dual override/meson.build:5:6: ERROR: Tried to override executable "override" which has already been overridden.

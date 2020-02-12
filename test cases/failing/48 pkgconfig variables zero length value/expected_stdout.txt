@@ -1,0 +1,1 @@
+test cases/failing/48 pkgconfig variables zero length value/meson.build:8:5: ERROR: Invalid variable "key=". Variables must be in 'name=value' format

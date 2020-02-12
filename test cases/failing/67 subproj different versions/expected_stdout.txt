@@ -1,0 +1,1 @@
+test cases/failing/67 subproj different versions/subprojects/b/meson.build:3:0: ERROR: Version 1 of subproject dependency c already cached, requested incompatible version ['2'] for dep c
