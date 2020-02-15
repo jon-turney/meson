@@ -1,2 +1,2 @@
 # 'missing/meson.build' gets transformed with os.path.sep separators
-test cases/failing/3 missing subdir/meson.build:3:0: ERROR: Non-existent build file 'missing/meson.build'
+re:test cases/failing/3 missing subdir/meson\.build:3:0: ERROR: Non\-existent build file 'missing[\\/]meson\.build'

@@ -1,1 +1,1 @@
-re:test cases/failing/78 non ascii in ascii encoded configure file/meson\.build:5:0: ERROR: Could not write output file .*/config9\.h: 'ascii' codec can't encode character '\\u0434' in position 17: ordinal not in range\(128\)
+re:test cases/failing/78 non ascii in ascii encoded configure file/meson\.build:5:0: ERROR: Could not write output file .*[\\/]config9\.h: 'ascii' codec can't encode character '\\u0434' in position 17: ordinal not in range\(128\)
