@@ -123,11 +123,12 @@ class IntrospectionInterpreter(AstInterpreter):
         options = {k: v for k, v in self.environment.cmd_line_options.items() if k.startswith('backend_')}
 
         self.coredata.set_options(options)
-        self.func_add_languages(None, proj_langs, None)
+        self._add_languages(proj_langs, MachineChoice.HOST)
+        self._add_languages(proj_langs, MachineChoice.BUILD)
         for kw in ['languages', 'native_languages']:
             if kw in kwargs:
-                v = [kwargs.get(kw)]  # type: T.List[TYPE_nvar]
-                self.func_add_languages(None, v, None)
+                self._add_languages([kwargs.get(kw)], MachineChoice.HOST)
+                self._add_languages([kwargs.get(kw)], MachineChoice.BUILD)
 
     def do_subproject(self, dirname: str) -> None:
         subproject_dir_abs = os.path.join(self.environment.get_source_dir(), self.subproject_dir)
@@ -141,17 +142,20 @@ class IntrospectionInterpreter(AstInterpreter):
             return
 
     def func_add_languages(self, node: BaseNode, args: T.List[TYPE_nvar], kwargs: T.Dict[str, TYPE_nvar]) -> None:
-        args = self.flatten_args(args)
         for for_machine in [MachineChoice.BUILD, MachineChoice.HOST]:
-            for lang in sorted(args, key=compilers.sort_clink):
-                if isinstance(lang, StringNode):
-                    assert isinstance(lang.value, str)
-                    lang = lang.value
-                if not isinstance(lang, str):
-                    continue
-                lang = lang.lower()
-                if lang not in self.coredata.compilers[for_machine]:
-                    self.environment.detect_compiler_for(lang, for_machine)
+            self._add_languages(args, for_machine)
+
+    def _add_languages(self, langs: T.List[TYPE_nvar], for_machine: MachineChoice) -> None:
+        langs = self.flatten_args(langs)
+        for lang in sorted(langs, key=compilers.sort_clink):
+            if isinstance(lang, StringNode):
+                assert isinstance(lang.value, str)
+                lang = lang.value
+            if not isinstance(lang, str):
+                continue
+            lang = lang.lower()
+            if lang not in self.coredata.compilers[for_machine]:
+                self.environment.detect_compiler_for(lang, for_machine)
 
     def func_dependency(self, node: BaseNode, args: T.List[TYPE_nvar], kwargs: T.Dict[str, TYPE_nvar]) -> None:
         args = self.flatten_args(args)
