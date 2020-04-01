@@ -2971,7 +2971,7 @@ external dependencies (including libraries) must go to "dependencies".''')
 
     @stringArgs
     @permittedKwargs(permitted_kwargs['project'])
-    @FeatureNewKwargs('project', '0.54.0', ['languages', 'native_languages'])
+    @FeatureNewKwargs('project', '0.55.0', ['languages', 'native_languages'])
     def func_project(self, node, args, kwargs):
         if len(args) < 1:
             raise InvalidArguments('Not enough arguments to project(). Needs at least the project name.')

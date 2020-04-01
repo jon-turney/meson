@@ -1329,7 +1329,7 @@ Project supports the following keyword arguments.
    `native: false` (the default) (host machine) targets.  If omitted, the
    languages listed as positional arguments may be used for both host and build
    machine compilations, but the build machine compilers for the specified
-   languages are not required to be present. *Since 0.54.0*. The default may
+   languages are not required to be present. *Since 0.55.0*. The default may
    change to specifying no languages for build machine targets in a future meson
    version.
 
@@ -1344,7 +1344,7 @@ Project supports the following keyword arguments.
 
  - `languages` takes a string or array of strings listing the languages that the
    project uses for `native: false` (host machine) targets (the default).  If
-   present, there must be no language positional arguments. *Since 0.54.0*.
+   present, there must be no language positional arguments. *Since 0.55.0*.
 
   - `license` takes a string or array of strings describing the
     license(s) the code is under. Usually this would be something like
