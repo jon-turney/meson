@@ -1329,9 +1329,7 @@ Project supports the following keyword arguments.
    `native: false` (the default) (host machine) targets.  If omitted, the
    languages listed as positional arguments may be used for both host and build
    machine compilations, but the build machine compilers for the specified
-   languages are not required to be present. *Since 0.55.0*. The default may
-   change to specifying no languages for build machine targets in a future meson
-   version.
+   languages are not required to be present. *Since 0.55.0*.
 
  - `default_options` takes an array of strings. The strings are in the
    form `key=value` and have the same format as options to
