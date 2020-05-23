@@ -84,6 +84,9 @@ def run_exe(exe):
                          stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
 
+    if exe.pickled and p.returncode != 0:
+        print('while executing', cmd_args)
+
     if p.returncode == 0xc0000135:
         # STATUS_DLL_NOT_FOUND on Windows indicating a common problem that is otherwise hard to diagnose
         raise FileNotFoundError('Missing DLLs on calling {!r}'.format(exe.name))
