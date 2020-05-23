@@ -397,6 +397,10 @@ the following special string substitutions:
 The returned object also has methods that are documented in the
 [object methods section](#custom-target-object) below.
 
+**Note:** Assuming that `command:` is executed by a POSIX `sh` shell is not
+portable, notably to Windows. Consider using a `native: true`
+[executable()](#executable), or a python script instead.
+
 ### declare_dependency()
 
 ``` meson
@@ -848,6 +852,10 @@ in a target-private directory `@BUILD_DIR@`.
 If you want to generate files for general purposes such as for
 generating headers to be used by several sources, or data that will be
 installed, and so on, use a [`custom_target`](#custom_target) instead.
+
+**Note:** Assuming that `arguments:` is executed by a POSIX `sh` shell is
+not portable, notably to Windows. Consider using a `native: true`
+[executable()](#executable), or a python script instead.
 
 ### get_option()
 
