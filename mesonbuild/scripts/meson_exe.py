@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import os
+import re
+import shlex
 import sys
 import argparse
 import pickle
@@ -38,6 +40,9 @@ def is_cygwin():
     platname = platform.system().lower()
     return 'cygwin' in platname
 
+# The commands for a custom target or generator are run here rather than
+# directly by the backend when meson needs to interpose itself (see
+# Backend.as_meson_exe_cmdline())
 def run_exe(exe):
     if exe.exe_runner:
         if not exe.exe_runner.found():
@@ -57,8 +62,24 @@ def run_exe(exe):
                 ['Z:' + p for p in exe.extra_paths] + child_env.get('WINEPATH', '').split(';')
             )
 
+    use_shell = False
+
+    # non-pickled command lines are already appropriately quoted in the backend file
+    if exe.pickled:
+        # On Cygwin and cross-to-windows, use a shell to match how ninja would
+        # execute the command.  Protect arguments containing spaces against
+        # shell splitting, and escape newlines.
+        #
+        # XXX: shouldn't actually end up here at all for native:true when
+        # cross-to-windows
+        if not is_windows():
+            use_shell = True
+            cmd_args = [shlex.quote(a) if bool(re.search(r'[ \n]', a)) else a for a in cmd_args]
+            cmd_args = ' '.join(list(cmd_args))
+
     p = subprocess.Popen(cmd_args, env=child_env, cwd=exe.workdir,
                          close_fds=False,
+                         shell=use_shell,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
@@ -100,6 +121,7 @@ def run(args):
             exe = pickle.load(f)
     else:
         exe = ExecutableSerialisation(cmd_args, capture=options.capture)
+    exe.pickled = options.unpickle
 
     return run_exe(exe)
 
