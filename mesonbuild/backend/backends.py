@@ -1102,6 +1102,11 @@ class Backend:
         #
         # https://github.com/mesonbuild/meson/pull/737
         cmd = [i.replace('\\', '/') for i in cmd]
+        print('eval_custom_target_command')
+        print(inputs)
+        print(outputs)
+        print(target.command)
+        print(cmd)
         return inputs, outputs, cmd
 
     def run_postconf_scripts(self):
