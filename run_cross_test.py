@@ -34,8 +34,6 @@ def runtests(cross_file, failfast, cross_only):
         cmd += ['--failfast']
     cmd += tests
     cmd += ['--cross-file', cross_file]
-    if cross_only:
-        cmd += ['--native-file', 'cross/none.txt']
     return subprocess.call(cmd)
 
 def main():
