@@ -63,5 +63,5 @@ jobs:
 
       # Publish
       - name: Push the ${{ matrix.cfg.id }} image
-        run:  docker push mesonbuild/${{ matrix.cfg.id }}
+        run:  docker push ${{ github.repository_owner }}/{{ matrix.cfg.id }}
         if:   (github.event_name == 'push' || github.event_name == 'schedule') && env.HAS_DOCKER_CREDENTIALS == 'true'
