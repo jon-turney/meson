@@ -23,28 +23,26 @@ on:
   schedule:
     - cron: '0 0 * * 0'
 
+  # ... or on demand
+  workflow_dispatch:
+
 permissions:
   contents: read
 
 jobs:
-  build:
-    # do not run the weekly scheduled job in a fork
-    if: github.event_name != 'schedule' || github.repository == 'mesonbuild/meson'
+  build-windows:
     env:
       HAS_DOCKER_CREDENTIALS: ${{ secrets.DOCKER_PASSWORD != '' }}
     name: ${{ matrix.cfg.name }}
-    runs-on: ubuntu-latest
+    runs-on: windows-2019
     strategy:
       fail-fast: false
       matrix:
         cfg:
-          - { name: Arch Linux,       id: arch     }
-          - { name: CUDA (on Arch),   id: cuda     }
-          - { name: Fedora,           id: fedora   }
-          - { name: OpenSUSE,         id: opensuse }
-          - { name: Ubuntu Bionic,    id: bionic   }
-          - { name: Ubuntu Rolling,   id: ubuntu-rolling  }
+          - { name: Cygwin Windows,   id: cygwin     }
     steps:
+      - run: git config --global core.autocrlf input
+
       - uses: actions/checkout@v3
 
       # Login to dockerhub
@@ -57,11 +55,11 @@ jobs:
 
       # Build and test
       - name: Building the ${{ matrix.cfg.id }} image
-        run:  ./ci/ciimage/build.py -t build ${{ matrix.cfg.id }}
+        run:  docker build -t ${{ github.repository_owner }}/${{ matrix.cfg.id }} ./ci/ciimage/cygwin/
       - name: Testing the ${{ matrix.cfg.id }} image
-        run:  ./ci/ciimage/build.py -t test  ${{ matrix.cfg.id }}
+        run:  docker run --rm ${{ github.repository_owner }}/${{ matrix.cfg.id }} 'bash --version'
 
       # Publish
       - name: Push the ${{ matrix.cfg.id }} image
-        run:  docker push ${{ github.repository_owner }}/{{ matrix.cfg.id }}
+        run:  docker push ${{ github.repository_owner }}/${{ matrix.cfg.id }}
         if:   (github.event_name == 'push' || github.event_name == 'schedule') && env.HAS_DOCKER_CREDENTIALS == 'true'
