@@ -55,11 +55,11 @@ jobs:
 
       # Build and test
       - name: Building the ${{ matrix.cfg.id }} image
-        run:  docker build -t ${{ github.repository_owner }}/${{ matrix.cfg.id }} ./ci/ciimage/cygwin/
+        run:  docker build -t jturney/${{ matrix.cfg.id }} ./ci/ciimage/cygwin/
       - name: Testing the ${{ matrix.cfg.id }} image
-        run:  docker run --rm ${{ github.repository_owner }}/${{ matrix.cfg.id }} 'bash --version'
+        run:  docker run --rm jturney/${{ matrix.cfg.id }} 'bash --version'
 
       # Publish
       - name: Push the ${{ matrix.cfg.id }} image
-        run:  docker push ${{ github.repository_owner }}/${{ matrix.cfg.id }}
+        run:  docker push jturney/${{ matrix.cfg.id }}
         if:   (github.event_name == 'push' || github.event_name == 'schedule') && env.HAS_DOCKER_CREDENTIALS == 'true'
