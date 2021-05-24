@@ -24,6 +24,10 @@ permissions:
 jobs:
   test:
     runs-on: windows-latest
+
+    container:
+      image: jturney/cygwin
+
     name: ${{ matrix.NAME }}
     strategy:
       fail-fast: false
@@ -46,32 +50,6 @@ jobs:
       - run: git config --global core.autocrlf input
 
       - uses: actions/checkout@v3
-
-      - uses: cygwin/cygwin-install-action@master
-        with:
-          platform: ${{ matrix.ARCH }}
-          packages: |
-            cmake
-            gcc-fortran
-            gcc-objc++
-            gcc-objc
-            git
-            gobject-introspection
-            gtk-doc
-            libboost-devel
-            libglib2.0-devel
-            libgtk3-devel
-            libxml2-devel
-            libxslt-devel
-            ninja
-            python2-devel
-            python3-devel
-            python3-libxml2
-            python3-libxslt
-            python39-pip
-            python39-wheel
-            vala
-            zlib-devel
 
       - name: Run pip
         run: |
