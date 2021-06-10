@@ -279,6 +279,19 @@ def skip_if_not_base_option(feature):
     return actual
 
 
+def xfail_if_ci(name):
+    '''
+    Xfail a test if _name_ is present in the CI job name
+    '''
+    if not is_ci() or (name not in os.environ.get('MESON_CI_JOBNAME', '')):
+        return lambda f: f
+
+    def wrapper(f):
+        return unittest.expectedFailure(f)
+
+    return wrapper
+
+
 @contextmanager
 def temp_filename():
     '''A context manager which provides a filename to an empty temporary file.
