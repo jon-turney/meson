@@ -10266,6 +10266,9 @@ def main():
 if __name__ == '__main__':
     setup_vsenv()
     print('Meson build system', mesonbuild.coredata.version, 'Unit Tests')
+    if is_ci() and 'MESON_CI_JOBNAME' not in os.environ:
+        print('MESON_CI_JOBNAME not set')
+        raise SystemExit(1)
     start = time.monotonic()
     try:
         raise SystemExit(main())

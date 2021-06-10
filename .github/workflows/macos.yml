@@ -17,6 +17,9 @@ on:
 jobs:
   unittests-appleclang:
     runs-on: macos-latest
+    env:
+      MESON_CI_JOBNAME: ${{ github.job }}
+
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
