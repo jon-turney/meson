@@ -5286,6 +5286,8 @@ class AllPlatformTests(BasePlatformTests):
         else:
             self.assertEqual(expected_lines, out_lines)
 
+    # xfail due to https://github.com/dotnet/msbuild/issues/6503
+    @xfail_if_ci('vc2019x64vs')
     def test_meson_compile(self):
         """Test the meson compile command."""
 
