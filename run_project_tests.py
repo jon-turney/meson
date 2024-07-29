@@ -1533,6 +1533,12 @@ def detect_tools(report: bool = True) -> None:
             re.compile(r'^([0-9]+(\.[0-9]+)*(-[a-z0-9]+)?)$'),
             1,
         ),
+        ToolInfo(
+            'make',
+            ['--version'],
+            re.compile(r'^GNU Make ([0-9]+(\.[0-9]+)*(-[a-z0-9]+)?)$'),
+            1,
+        ),
     ]
 
     def get_version(t: ToolInfo) -> str:
