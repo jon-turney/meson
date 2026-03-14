@@ -83,6 +83,7 @@ jobs:
             # if this is scheduled, use latest circa
             # (an empty site indicates to cygwin-install-action that is should use its default)
             $site = ""
+            $checksig = "true"
             echo "Selecting latest circa"
           } else {
             # otherwise, fetch circa from the ratchet (updated below in 'schedule' mode)
@@ -92,15 +93,17 @@ jobs:
             echo "Selecting circa $circa"
             # install cygwin from that circa using the time machine
             $site = "http://ctm.crouchingtigerhiddenfruitbat.org/pub/cygwin/circa/64bit/$circa"
+            $checksig = "false"
           }
           echo "site=$site" >> $env:GITHUB_OUTPUT
+          echo "checksig=$checksig" >> $env:GITHUB_OUTPUT
         shell: powershell
 
       - uses: cygwin/cygwin-install-action@v6
         id: install-action
         with:
           site: ${{ steps.circa-select.outputs.site }}
-          check-sig: false
+          check-sig: ${{ steps.circa-select.outputs.checksig }}
           platform: ${{ matrix.ARCH }}
           packages: |
             cmake
@@ -171,8 +174,7 @@ jobs:
       - name: Update the circa ratchet
         run: |
           # get the circa from the cygwin installation at hand
-          # XXX: is this the timestamp of the right thing?
-          export CIRCA=$(date -d @$(cat /etc/setup/timestamp) +%Y/%m/%d-%H%M%S)
+          export CIRCA=$(date -d @$(cat /etc/setup/timestamp) +%Y/%m/%d/%H%M%S)
           # store it in the ratchet (by arch)
           curl --no-progress-meter -L \
             -X PATCH \
