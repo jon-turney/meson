@@ -993,9 +993,6 @@ def skip_dont_care(t: TestDef) -> bool:
     if not t.category.endswith('frameworks'):
         return True
 
-    if mesonlib.is_osx() and '6 gettext' in str(t.path):
-        return True
-
     return False
 
 def skip_csharp(backend: Backend) -> bool:
