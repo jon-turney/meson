@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     container: mesonbuild/ubuntu-rolling:latest
     env:
-      MESON_CI_JOBNAME_UPDATE: ubuntu-${{ github.job }}
+      MESON_CI_JOBNAME_UPDATE: linux-ubuntu-${{ github.job }}-gcc
 
     steps:
     - run: |

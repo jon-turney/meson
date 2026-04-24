@@ -3,5 +3,6 @@
     {"type": "file", "file": "usr/share/progname/C/datafile.dat"},
     {"type": "file", "file": "usr/share/progname/es/datafile.dat"},
     {"type": "file", "file": "usr/share/progname/fr/rename_datafile.dat"}
-  ]
+  ],
+  "expect_skip_on_jobname": ["msys2"]
 }
