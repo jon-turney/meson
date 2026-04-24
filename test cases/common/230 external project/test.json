@@ -4,5 +4,6 @@
     { "type": "file",  "file": "usr/lib/libfoo.dll", "platform": "windows" },
     { "type": "file",  "file": "usr/include/libfoo.h" },
     { "type": "file", "file": "usr/lib/pkgconfig/somelib.pc" }
-  ]
+  ],
+  "expect_skip_on_jobname": ["cross"]
 }

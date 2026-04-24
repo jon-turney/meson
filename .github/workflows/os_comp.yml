@@ -108,11 +108,12 @@ jobs:
             MESON_RSP_THRESHOLD: '0'
             CC: 'gcc'
             CXX: 'g++'
+            JOBNAME_EXTRA: 'cross'
           - RUN_TESTS_ARGS: '--cross ubuntu-armhf.json --cross linux-mingw-w64-64bit.json'
             MESON_ARGS: '--unity=on'
             CC: 'gcc'
             CXX: 'g++'
-            JOBNAME_EXTRA: 'unity'
+            JOBNAME_EXTRA: 'cross-unity'
 
     env:
       MESON_CI_JOBNAME_UPDATE: linux-${{ github.job }}-${{ matrix.cfg.CC }}-${{ matrix.cfg.JOBNAME_EXTRA }}

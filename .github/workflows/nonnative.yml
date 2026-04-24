@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     container: mesonbuild/ubuntu-rolling:latest
     env:
-      MESON_CI_JOBNAME: ubuntu-${{ github.job }}
+      MESON_CI_JOBNAME_UPDATE: ubuntu-${{ github.job }}
 
     steps:
     - run: |
@@ -38,14 +38,24 @@ jobs:
         apt-get -y autoremove
     - uses: actions/checkout@v4
     - name: Run tests
-      run: bash -c 'source /ci/env_vars.sh; cd $GITHUB_WORKSPACE; ./run_tests.py $CI_ARGS --cross ubuntu-armhf.json --cross-only'
+      run: |
+       source /ci/env_vars.sh
+       export MESON_CI_JOBNAME=$MESON_CI_JOBNAME_UPDATE
+       cd $GITHUB_WORKSPACE
+       ./run_tests.py $CI_ARGS --cross ubuntu-armhf.json --cross-only
+      shell: bash
 
   cross-cuda:
     runs-on: ubuntu-latest
     container: mesonbuild/cuda-cross:latest
     env:
-      MESON_CI_JOBNAME: cuda-cross-${{ github.job }}
+      MESON_CI_JOBNAME_UPDATE: cuda-cross-${{ github.job }}
     steps:
     - uses: actions/checkout@v4
     - name: Run tests
-      run: bash -c 'source /ci/env_vars.sh; cd $GITHUB_WORKSPACE; ./run_tests.py $CI_ARGS --cross cuda-cross.json --cross-only'
+      run: |
+        source /ci/env_vars.sh
+        export MESON_CI_JOBNAME=$MESON_CI_JOBNAME_UPDATE
+        cd $GITHUB_WORKSPACE
+        ./run_tests.py $CI_ARGS --cross cuda-cross.json --cross-only
+      shell: bash
