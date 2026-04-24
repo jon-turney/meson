@@ -984,8 +984,9 @@ def skip_dont_care(t: TestDef) -> bool:
     if ci_jobname is None:
         return True
 
-    # Non-frameworks test are allowed to determine their own skipping under CI (currently)
-    if not t.category.endswith('frameworks'):
+    # Tests not yet annotated with skip expectations in test.json are allowed to
+    # determine their own skipping under CI
+    if not any (t.category.endswith(c) for c in ['frameworks', 'common']):
         return True
 
     return False
