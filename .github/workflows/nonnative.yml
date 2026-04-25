@@ -41,6 +41,7 @@ jobs:
       run: |
        source /ci/env_vars.sh
        export MESON_CI_JOBNAME=$MESON_CI_JOBNAME_UPDATE
+       export MESON_CI_JOBCFG='[ "nozlib" ]'
        cd $GITHUB_WORKSPACE
        ./run_tests.py $CI_ARGS --cross ubuntu-armhf.json --cross-only
       shell: bash
