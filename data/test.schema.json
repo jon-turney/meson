@@ -89,6 +89,9 @@
                     "type": "string"
                   }
                 },
+                "expect_skip_on": {
+                  "type": "object"
+                },
                 "expect_skip_on_jobname": {
                   "type": "array",
                   "items": {
@@ -167,6 +170,12 @@
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "expect_skip_on": {
+        "type": "object",
+        "additionalProperties": {
+            "type": ["string", "boolean", "null", "array"]
       }
     },
     "expect_skip_on_jobname": {

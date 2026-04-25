@@ -308,9 +308,12 @@ class TestDef:
 failing_testcases: T.List[str] = []
 failing_logs: T.List[str] = []
 print_debug = 'MESON_PRINT_TEST_OUTPUT' in os.environ
+
 under_ci = 'CI' in os.environ
 raw_ci_jobname = os.environ.get('MESON_CI_JOBNAME', None)
 ci_jobname = raw_ci_jobname if raw_ci_jobname != 'thirdparty' else None
+ci_jobcfg = json.loads(os.environ.get('MESON_CI_JOBCFG', '{}'))
+
 do_debug = under_ci or print_debug
 no_meson_log_msg = 'No meson-log.txt found.'
 
@@ -802,6 +805,47 @@ def _run_test(test: TestDef,
 # matrix:
 def _skip_keys(test_def: T.Dict) -> T.Tuple[bool, bool]:
     skip_expected = False
+
+    if ('expect_skip_on' in test_def):
+        # for each key, k, in expect_skip_on...
+        for k, v in test_def['expect_skip_on'].items():
+            # if its value, v, is false, we just require the absence of the key
+            # in the config to expect a skip
+            if (v is False) or (v is None):
+                if k not in ci_jobcfg:
+                    skip_expected = True
+
+            # likewise, if its value, v, is true, we only need the presence of
+            # the key in the config to expect a skip
+            elif (v is True):
+                if k in ci_jobcfg:
+                    skip_expected = True
+
+            # otherwise, expect a skip if we match (or negated match if it
+            # starts with '!') any element of the value, v, against the value of
+            # the key in the config
+            else:
+                if not isinstance(v, list):
+                    v = [v]
+
+                for i in v:
+                    if i.startswith('!'):
+                        if i[1:] != ci_jobcfg[k]:
+                            skip_expected = True
+                    else:
+                        if i == ci_jobcfg[k]:
+                            skip_expected = True
+
+#    expect_skip_on
+#      os:
+#      container: ('aka installed environment')
+#      compiler: ['gcc', 'msvc', 'clang']
+#      boost: true (absent = false)
+#      llvm
+#      zlib
+#
+#      unity
+#      cross
 
     # Test is expected to skip if MESON_CI_JOBNAME contains any of the list of
     # substrings
