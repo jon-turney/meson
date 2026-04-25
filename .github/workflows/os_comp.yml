@@ -92,6 +92,7 @@ jobs:
             RUN_TESTS_ARGS: '--no-unittests'
             CC: 'gcc'
             CXX: 'g++'
+            JOBNAME_EXTRA: 'unity'
           - MESON_ARGS: '-Ddefault_library=both'
             RUN_TESTS_ARGS: '--no-unittests'
             CC: 'gcc'
@@ -102,6 +103,7 @@ jobs:
             RUN_TESTS_ARGS: '--no-unittests'
             CC: 'clang'
             CXX: 'clang++'
+            JOBNAME_EXTRA: 'unity'
           - RUN_TESTS_ARGS: '--cross ubuntu-armhf.json --cross linux-mingw-w64-64bit.json'
             MESON_RSP_THRESHOLD: '0'
             CC: 'gcc'
@@ -110,9 +112,10 @@ jobs:
             MESON_ARGS: '--unity=on'
             CC: 'gcc'
             CXX: 'g++'
+            JOBNAME_EXTRA: 'unity'
 
     env:
-      MESON_CI_JOBNAME_UPDATE: linux-${{ github.job }}-${{ matrix.cfg.CC }}
+      MESON_CI_JOBNAME_UPDATE: linux-${{ github.job }}-${{ matrix.cfg.CC }}-${{ matrix.cfg.JOBNAME_EXTRA }}
 
     container:
       image: mesonbuild/ubuntu-rolling
