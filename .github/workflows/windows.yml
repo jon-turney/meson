@@ -122,6 +122,7 @@ jobs:
       - name: Run tests
         env:
           MESON_CI_JOBNAME: windows-${{ matrix.name }}
+          MESON_CI_JOBCFG: '[ "nozlib" ]'
         shell: pwsh
         run: |
           # Remove Chocolatey, MinGW, Strawberry Perl from path

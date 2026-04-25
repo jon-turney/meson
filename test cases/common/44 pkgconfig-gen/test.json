@@ -37,5 +37,9 @@
       "comment": "This will either match in the future-deprecated notice summary, or match the warning summary",
       "line": " * 0.62.0: {'pkgconfig.generate variable for builtin directories'}"
     }
-  ]
+  ],
+  "expect_skip_on":
+    {
+      "nozlib": true
+    }
 }
