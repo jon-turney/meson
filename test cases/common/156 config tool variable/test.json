@@ -1,3 +1,6 @@
 {
-  "expect_skip_on_jobname": ["gcc"]
+  "expect_skip_on":
+    {
+      "llvm": false
+    }
 }

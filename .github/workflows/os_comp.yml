@@ -37,11 +37,11 @@ jobs:
       fail-fast: false
       matrix:
         cfg:
-          - { name: Arch Linux,       id: arch     }
-          - { name: CUDA (on Arch),   id: cuda     }
-          - { name: Fedora,           id: fedora   }
-          - { name: Gentoo,           id: gentoo   }
-          - { name: OpenSUSE,         id: opensuse }
+          - { name: Arch Linux,       id: arch,       jobcfg: '[ "llvm" ]' }
+          - { name: CUDA (on Arch),   id: cuda,       jobcfg: '' }
+          - { name: Fedora,           id: fedora,     jobcfg: '[ "llvm" ]' }
+          - { name: Gentoo,           id: gentoo,     jobcfg: '[ "llvm" ]' }
+          - { name: OpenSUSE,         id: opensuse,   jobcfg: '[ "llvm" ]' }
     container:
       image: mesonbuild/${{ matrix.cfg.id }}:latest
     env:
@@ -60,6 +60,7 @@ jobs:
         [[ ${{ matrix.cfg.id }} == opensuse ]] && export HOME=/root
 
         source /ci/env_vars.sh
+        export MESON_CI_JOBCFG="${{ matrix.cfg.jobcfg }}"
         cd $GITHUB_WORKSPACE
         ./run_tests.py $CI_ARGS
 
@@ -76,6 +77,7 @@ jobs:
       run: |
         source /ci/env_vars.sh
         export MESON_CI_JOBNAME=$MESON_CI_JOBNAME_UPDATE
+        export MESON_CI_JOBCFG='[ "llvm" ]'
         pypy3 run_tests.py
 
   ubuntu-rolling:
@@ -148,6 +150,7 @@ jobs:
 
           source /ci/env_vars.sh
           export MESON_CI_JOBNAME=$MESON_CI_JOBNAME_UPDATE
+          export MESON_CI_JOBCFG='[ "llvm" ]'
 
           update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
           update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix

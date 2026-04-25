@@ -125,6 +125,11 @@ jobs:
             pacman --noconfirm --needed -S mingw-w64-${{ matrix.MSYS2_ARCH }}-${{ matrix.MSYS2_CURSES }}
           fi
 
+          # if the condition for installing llvm above is true,
+          if [[ "${{ matrix.MSYSTEM }}" != 'MINGW32' ]]; then
+            export MESON_CI_JOBCFG='[ "llvm" ]'
+          fi
+
           MSYSTEM= python3 ./run_tests.py --backend=ninja
 
       - uses: actions/upload-artifact@v4
