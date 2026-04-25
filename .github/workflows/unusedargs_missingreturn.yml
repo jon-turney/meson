@@ -55,6 +55,7 @@ jobs:
     - run: ./run_project_tests.py --only cmake common fortran platform-linux "objective c" "objective c++"
       env:
         MESON_CI_JOBNAME: linux-ubuntu-gcc-werror
+        MESON_CI_JOBCFG: '[ "llvm" ]'
 
   windows:
     runs-on: windows-latest
