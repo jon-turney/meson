@@ -418,9 +418,14 @@ is skipped.
 
 #### expect_skip_on_jobname
 
-The `expect_skip_on_jobname` key contains a list of strings. If the `MESON_CI_JOBNAME`
-environment variable is set, and any of them are a sub-string of it, the test is
-expected to be skipped (that is, it is expected that the test will output
+The `expect_skip_on_jobname` key contains a list of strings, which are matched
+against the `MESON_CI_JOBNAME` environment variable, if it is set.
+
+An item matches if it is a sub-string of `MESON_CI_JOBNAME` (or absent, if it is
+prefixed with a `!`).
+
+If at least one item in the `expect_skip_on_jobname` list is matched, the test
+is expected to be skipped (that is, it is expected that the test will output
 `MESON_SKIP_TEST`, because the CI environment is not one in which it can run,
 for whatever reason).
 

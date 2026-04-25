@@ -806,7 +806,13 @@ def _skip_keys(test_def: T.Dict) -> T.Tuple[bool, bool]:
     # Test is expected to skip if MESON_CI_JOBNAME contains any of the list of
     # substrings
     if ('expect_skip_on_jobname' in test_def) and (ci_jobname is not None):
-        skip_expected = any(s in ci_jobname for s in test_def['expect_skip_on_jobname'])
+        for skip_job in test_def['expect_skip_on_jobname']:
+            if skip_job.startswith('!'):
+                if skip_job[1:] not in ci_jobname:
+                    skip_expected = True
+            else:
+                if skip_job in ci_jobname:
+                    skip_expected = True
 
     # Test is expected to skip if os matches
     if 'expect_skip_on_os' in test_def:
