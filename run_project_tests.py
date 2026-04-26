@@ -312,7 +312,12 @@ print_debug = 'MESON_PRINT_TEST_OUTPUT' in os.environ
 under_ci = 'CI' in os.environ
 raw_ci_jobname = os.environ.get('MESON_CI_JOBNAME', None)
 ci_jobname = raw_ci_jobname if raw_ci_jobname != 'thirdparty' else None
-ci_jobcfg = json.loads(os.environ.get('MESON_CI_JOBCFG', '{}'))
+try:
+    ci_jobcfg = os.environ.get('MESON_CI_JOBCFG', '{}')
+    ci_jobcfg = json.loads(ci_jobcfg)
+except json.decoder.JSONDecodeError:
+    print(f'error decoding MESON_CI_JOBCFG value "{ci_jobcfg}"')
+    raise
 
 do_debug = under_ci or print_debug
 no_meson_log_msg = 'No meson-log.txt found.'
