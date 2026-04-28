@@ -1,5 +1,6 @@
 {
   "file": "ubuntu-armhf.txt",
   "tests": ["common"],
-  "env": {}
+  "env": {},
+  "jobcfg" : []
 }

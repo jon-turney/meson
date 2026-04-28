@@ -42,6 +42,7 @@ def main():
         assert real_cf.exists()
         env = os.environ.copy()
         env.update(data['env'])
+        env['MESON_CI_JOBCFG'] = env.get('MESON_CI_JOBCFG', '') + '-'.join(data['jobcfg'])
         return runtests(real_cf.as_posix(), options.failfast, options.cross_only, data['tests'], env=env)
     except Exception:
         return runtests(options.cross_file, options.failfast, options.cross_only, ['common'])
