@@ -95,27 +95,33 @@ jobs:
             CC: 'gcc'
             CXX: 'g++'
             JOBNAME_EXTRA: 'unity'
+            JOBCFG: '[ "llvm" ]'
           - MESON_ARGS: '-Ddefault_library=both'
             RUN_TESTS_ARGS: '--no-unittests'
             CC: 'gcc'
             CXX: 'g++'
+            JOBCFG: '[ "llvm" ]'
           - CC: 'clang'
             CXX: 'clang++'
+            JOBCFG: '[ "llvm" ]'
           - MESON_ARGS: '--unity=on'
             RUN_TESTS_ARGS: '--no-unittests'
             CC: 'clang'
             CXX: 'clang++'
             JOBNAME_EXTRA: 'unity'
+            JOBCFG: '[ "llvm" ]'
           - RUN_TESTS_ARGS: '--cross ubuntu-armhf.json --cross linux-mingw-w64-64bit.json'
             MESON_RSP_THRESHOLD: '0'
             CC: 'gcc'
             CXX: 'g++'
             JOBNAME_EXTRA: 'cross'
+            JOBCFG: '[ "nozlib" ]'
           - RUN_TESTS_ARGS: '--cross ubuntu-armhf.json --cross linux-mingw-w64-64bit.json'
             MESON_ARGS: '--unity=on'
             CC: 'gcc'
             CXX: 'g++'
             JOBNAME_EXTRA: 'cross-unity'
+            JOBCFG: '[ "nozlib" ]'
 
     env:
       MESON_CI_JOBNAME_UPDATE: linux-${{ github.job }}-${{ matrix.cfg.CC }}-${{ matrix.cfg.JOBNAME_EXTRA }}
@@ -150,7 +156,8 @@ jobs:
 
           source /ci/env_vars.sh
           export MESON_CI_JOBNAME=$MESON_CI_JOBNAME_UPDATE
-          export MESON_CI_JOBCFG='[ "llvm" ]'
+          export MESON_CI_JOBCFG='${{ matrix.cfg.JOBCFG }}'
+          echo $MESON_CI_JOBCFG
 
           update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
           update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
