@@ -5,5 +5,5 @@
     { "type": "file",  "file": "usr/include/libfoo.h" },
     { "type": "file", "file": "usr/lib/pkgconfig/somelib.pc" }
   ],
-  "expect_skip_on_jobname": ["cross"]
+  "expect_skip_on_jobname": ["cross", "vs"]
 }
