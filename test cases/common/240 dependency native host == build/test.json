@@ -11,5 +11,10 @@
       "count": 3
     }
   ],
-  "expect_skip_on_jobname": ["cross"]
+  "expect_skip_on_jobname": ["cross"],
+  "expect_skip_on":
+    {
+      "nozlib": true
+    }
+ }
 }

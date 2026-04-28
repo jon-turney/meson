@@ -6,5 +6,6 @@
     {"type": "expr", "file": "usr/lib/modules/subdir/libmymodule2?so"},
     {"type": "implib", "file": "usr/lib/modules/subdir/libmymodule2"},
     {"type": "pdb", "file": "usr/lib/modules/subdir/mymodule2"}
-  ]
+  ],
+  "expect_skip_on_jobname": "vc2022arm64"
 }
