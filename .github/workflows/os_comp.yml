@@ -90,6 +90,7 @@ jobs:
         cfg:
           - CC: 'gcc'
             CXX: 'g++'
+            JOBCFG: '[ "llvm" ]'
           - MESON_ARGS: '--unity=on -Ddefault_library=static'
             RUN_TESTS_ARGS: '--no-unittests'
             CC: 'gcc'
